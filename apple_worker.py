@@ -148,18 +148,37 @@ def supported_references(context):
     return refs
 
 
-def explicit_period_window(context):
-    """Normalize explicit quarter/year notation, otherwise retain selected dates."""
+MONTH_NAMES = {name.casefold(): number for number in range(1, 13)
+               for name in (calendar.month_name[number], calendar.month_abbr[number])}
+
+
+def named_months(text):
+    return sorted({MONTH_NAMES[word.casefold().rstrip(".")] for word in re.findall(r"\b[A-Za-z]+\.?", text)
+                   if word.casefold().rstrip(".") in MONTH_NAMES})
+
+
+def explicit_periods(context):
+    """Separate explicitly requested calendar periods; never inherit old dates."""
     text = context["user_message"]
-    quarters = [int(q) for q in re.findall(r"\bQ([1-4])\b", text, flags=re.I)]
+    quarters = sorted(set(int(q) for q in re.findall(r"\bQ([1-4])\b", text, flags=re.I)))
     years = set(re.findall(r"\b(?:19|20)[0-9]{2}\b", text))
-    if quarters and len(years) == 1:
+    if len(years) == 1:
         year = int(next(iter(years)))
-        first, last = (min(quarters) - 1) * 3 + 1, max(quarters) * 3
-        return {"period_start": f"{year:04d}-{first:02d}-01",
-                "period_end": f"{year:04d}-{last:02d}-{calendar.monthrange(year, last)[1]:02d}"}
+        ranges = [((q-1)*3+1, q*3) for q in quarters] or [(m, m) for m in named_months(text)]
+        return [{"period_start": f"{year:04d}-{first:02d}-01",
+                 "period_end": f"{year:04d}-{last:02d}-{calendar.monthrange(year,last)[1]:02d}"} for first,last in ranges]
+    return []
+
+
+def explicit_period_window(context):
+    """Explicit quarter/month dates replace state; otherwise retain selected dates."""
+    text = context["user_message"]
+    requested = explicit_periods(context)
+    if requested:
+        return {"period_start": min(p["period_start"] for p in requested),
+                "period_end": max(p["period_end"] for p in requested)}
     periods = context.get("state", {}).get("periods") or []
-    if periods and not years and not quarters:
+    if periods and not re.search(r"\b(?:19|20)[0-9]{2}\b|\bQ[1-4]\b", text, re.I) and not named_months(text):
         return {"period_start": min(p["start"] for p in periods), "period_end": max(p["end"] for p in periods)}
     return {}
 
@@ -170,14 +189,10 @@ def comparison_period_status(context, plan):
     No fixture/oracle is read here. A partial result requires an observed gap
     for each missing topic/place/quarter, not just a search over their union.
     """
-    quarters = sorted(set(int(q) for q in re.findall(r"\bQ([1-4])\b", context["user_message"], re.I)))
-    years = set(re.findall(r"\b(?:19|20)[0-9]{2}\b", context["user_message"]))
+    periods = explicit_periods(context)
     topics = request_topics(plan) or (list(CHANGE_TOPICS) if plan["topic"] == "unspecified" else [])
-    if plan["task"] != "compare" or len(quarters) < 2 or len(years) != 1 or not plan["geographies"] or not topics:
+    if plan["task"] != "compare" or len(periods) < 2 or not plan["geographies"] or not topics:
         return None
-    year = int(next(iter(years)))
-    periods = [{"period_start": f"{year:04d}-{(q-1)*3+1:02d}-01",
-                "period_end": f"{year:04d}-{q*3:02d}-{calendar.monthrange(year,q*3)[1]:02d}"} for q in quarters]
     known, refs, missing = context["known_evidence"], [], []
     window = explicit_period_window(context)
     for place in plan["geographies"]:
@@ -200,22 +215,18 @@ def comparison_period_status(context, plan):
                 args = {"topic": topic, "geography": place, **window, "limit": 100}
                 if plan["entity"]: args["entity"] = plan["entity"]
                 return {"next_call": ("search_facts", args), "references": [], "complete": False}
-            if not scoped:
-                # No observed metric to bind: retain the normal coverage/
-                # clarification path instead of inventing a metric identifier.
-                return None
             refs.extend("fact:" + f["fact_id"] for f in scoped)
             for period in absent:
                 gap = next((o for o in known["observations"] if o["tool"] == "coverage_gap"
                             and o["data"]["assessment"] == "no_matching_facts_in_fixture"
-                            and o["data"]["requested_scope"].get("metric") in {f["metric"] for f in scoped}
+                            and (not o["data"]["requested_scope"].get("metric")
+                                 or o["data"]["requested_scope"].get("metric") in {f["metric"] for f in scoped})
                             and not o["data"]["unresolved_fields"] and covers(o["data"]["requested_scope"], period)), None)
                 if gap is None:
                     metrics = {f["metric"] for f in scoped}
-                    if len(metrics) != 1:
-                        return None
                     args = {"request": "Fixture coverage for one missing comparison period",
-                            "topic": topic, "metric": next(iter(metrics)), "geography": place, **period}
+                            "topic": topic, "geography": place, **period}
+                    if len(metrics) == 1: args["metric"] = next(iter(metrics))
                     if plan["entity"]: args["entity"] = plan["entity"]
                     return {"next_call": ("coverage_gap", args), "references": [], "complete": False}
                 missing.append(gap)
@@ -260,7 +271,7 @@ def answer_generation_schema(kind, references=None):
         return {"type": "object", "properties": {
             "references": {"type": "array", "items": {"type": "string", "enum": references or []}, "minItems": 1, "maxItems": 8},
             "selection": selection}, "required": ["references", "selection"], "additionalProperties": False}
-    properties = {"clarification": {"type": "string", "enum": ["geography", "period", "metric", "entity", "referent", "scope", "getting_started"]}} if kind == "clarify" else {"kind": {"type": "string", "enum": ["refuse"]}}
+    properties = {"clarification": {"type": "string", "enum": ["geography", "period", "metric", "entity", "referent", "scope", "getting_started", "period_granularity"]}} if kind == "clarify" else {"kind": {"type": "string", "enum": ["refuse"]}}
     return {"type": "object", "properties": properties, "required": list(properties), "additionalProperties": False}
 
 
@@ -385,6 +396,8 @@ def scoped_evidence(context, plan):
             refs.append("comparison:" + o["observation_id"])
             covered.update(fact_map[i]["geography"] for i in o["data"]["fact_ids"])
         elif o["tool"] == "coverage_gap" and (task in ("coverage", "lookup", "history") or (task in ("compare", "brief") and not facts)):
+            if o["data"]["assessment"] == "needs_scope":
+                continue
             scope = o["data"]["requested_scope"]
             if (not places or str(scope.get("geography")).casefold() in place_keys) and (topic == "unspecified" or scope.get("topic") == topic) and (not entity or scope.get("entity") == entity) and (not window or all(scope.get(k) == v for k, v in window.items())):
                 refs.append("coverage:" + o["observation_id"])
@@ -568,6 +581,18 @@ def normalize_request_plan(plan, context):
         plan["task"]="lookup"
     if re.search(r"\bwhat evidence\b",text,re.I) and plan["task"] == "brief":
         plan["task"]="lookup"
+    if comparison_request and len(explicit_periods(context)) >= 2 and plan["task"] in ("lookup", "brief", "coverage", "compare"):
+        plan["task"] = "compare"
+        if not request_topics(plan): plan["topics"] = list(CHANGE_TOPICS)
+    if comparison_request and named_months(text) and not re.search(r"\bQ[1-4]\b", text, re.I):
+        if not explicit_periods(context):
+            plan.update(task="clarify", clarification="period")
+        elif set(request_topics(plan) or CHANGE_TOPICS) <= set(CHANGE_TOPICS):
+            plan.update(task="clarify", clarification="period_granularity")
+    current_ids = {item.get("observation_id") for item in context.get("current_turn_tools", [])}
+    if any(o["observation_id"] in current_ids and o["tool"] == "coverage_gap"
+           and o["data"]["assessment"] == "needs_scope" for o in context.get("known_evidence", {}).get("observations", [])):
+        plan.update(task="clarify", clarification="scope")
     return plan
 
 
@@ -608,6 +633,14 @@ async def generate(fm, model, request, identity):
                              + json.dumps(context["user_message"]), plan_schema, 512, policy=PLAN_INSTRUCTIONS)
     plan = normalize_request_plan(plan, context)
     if plan["task"] in ("clarify", "refuse"):
+        if not generation_ids:
+            # A checked tool may establish the need to clarify on a later
+            # step. Record a real generation rather than inventing model IDs.
+            schema = answer_generation_schema(plan["task"])
+            if plan["task"] == "clarify": schema["properties"]["clarification"]["enum"] = [plan["clarification"]]
+            resolved = await respond("Return the required clarification for the unresolved scope.", schema, 128)
+            if not isinstance(resolved, dict) or (plan["task"] == "clarify" and resolved.get("clarification") != plan["clarification"]):
+                raise ProviderError("APPLE_INVALID_DECISION_FINAL_SELECTION")
         value = {"kind": plan["task"], "items": [], "clarification": plan["clarification"] if plan["task"] == "clarify" else None,
                  "follow_up": None, "selection": {key: None for key in ("topics", "geographies", "periods", "entity")}}
         identity.update({"response_id": generation_ids[-1], "response_id_origin": "local_generation_uuid", "generation_ids": generation_ids,

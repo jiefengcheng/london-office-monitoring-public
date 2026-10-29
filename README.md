@@ -84,6 +84,8 @@ Answers include fact/source references, observation periods, units and qualifica
 
 When a requested comparison period is missing from the fixture, the agent can return the available observations alongside a scoped coverage gap. For example, Q2 versus Q3 2026 in Central London provides Q2 records and identifies the missing Q3 evidence; it cannot calculate that change from the supplied fixture.
 
+If both requested quarters are missing, the answer identifies the checked gaps for those dates and topics. A monthly office-market comparison receives an explanation of the quarterly data's limits, rather than reusing prior dates or treating a quarterly total as a monthly observation. The fixture contains selected historical evidence, not a complete market time series.
+
 The [reproduction guide](docs/user/REPRODUCING.md) covers offline checks, a live interactive profile, the six-conversation evaluation and historical project replay. Model choices and wording can vary; inspect the returned evidence and calculations.
 
 ## Presentation and source

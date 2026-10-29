@@ -204,6 +204,10 @@ def _resolve_scope(connection, arguments):
     # should submit one clarified request rather than silently changing its meaning.
     scope = {**inferred, **explicit}
     required = {"topic", "metric", "geography", "period_start", "period_end"}
+    # An explicit topic-wide query is a complete scope across all metrics in
+    # that topic. Omitting metric broadens a checked query; it is not ambiguity.
+    if {"topic", "geography", "period_start", "period_end"} <= explicit.keys():
+        required.discard("metric")
     unresolved = sorted((required - scope.keys()) | ambiguous | conflicts)
     if not required <= explicit.keys():
         # Convenience parsing is only complete for this one documented template.

@@ -84,6 +84,8 @@ For an opening-interaction smoke check, start `python agent.py --provider apple 
 
 Also try `What changed in Central London between Q2 and Q3 2026?` with Apple. Expected: available Q2 vacancy (F02, 7.2%) and take-up (F08, 2.4 million sq ft), plus separate Q3 fixture gaps for those metrics. No Q2-to-Q3 change is supported. The turn should finish without repeated fact lookups or step-budget exhaustion. This variation supplements the original six-case replay.
 
+In the same session, follow with `What changed in Central London between May and July 2026?`, then the Q3/Q4 comparison for 2026 and for 2025. Expected: the monthly request explains that quarterly office figures cannot establish a monthly change, with no reused numeric claims. Each Q3/Q4 request returns scoped vacancy/leasing fixture gaps for its actual year; it must not return the previous Q2 figures, unresolved-coverage metadata or a catalogue dump. All turns should complete without provider errors or exhausted step budgets.
+
 After installing a live provider, create a new local run directory with the supplied driver:
 
 ```sh

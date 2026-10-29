@@ -60,6 +60,8 @@ A “no matching facts” result applies only to this supplied fixture. It never
 
 For explicit quarter comparisons, the Apple adapter checks whether the retrieved evidence covers each requested period. When one period is missing, it requests a separate coverage check bound to the observed metric, geography and missing dates. A checked missing-period result can complete a partial answer together with the available fact cards. A matching result over the combined date range is insufficient to prove coverage of both quarters. The adapter also excludes already-loaded IDs from individual fact/source lookup choices.
 
+Explicit month names replace the prior date window. Monthly vacancy/take-up change requests receive a granularity clarification: overlapping quarterly totals or quarter-end snapshots cannot supply monthly changes. Completely missing quarter pairs use explicit topic-wide coverage checks without inventing metric identifiers. Unresolved coverage is excluded from final answer selections and leads to clarification. Coverage catalogue notes remain inspectable in tool results and traces; the user-facing gap answer shows its requested scope and assessment.
+
 ## Provider boundary
 
 The CLI, tool gateway, session state, schemas, evidence ledger, answer validator and renderer are provider-neutral. Provider selection is explicit and there is no automatic fallback.

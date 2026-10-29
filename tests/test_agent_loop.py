@@ -66,6 +66,16 @@ class QueueProvider:
 
 
 class AgentLoopTests(unittest.TestCase):
+    def test_unresolved_coverage_is_clarified_instead_of_published_as_an_answer(self):
+        provider = QueueProvider([call("coverage_gap", {"request": "City Core and City Fringe"}),
+                                  Decision(answer=answer([{"kind":"coverage", "ref":"T1.O1"}])),
+                                  Decision(answer=answer(kind="clarify", clarification="scope"))])
+        result = EvidenceAgent(provider).ask("City Core and City Fringe")
+        self.assertEqual(result["status"], "clarified")
+        self.assertEqual(result["claims"], [])
+        self.assertNotIn("Coverage rows", result["answer"])
+        self.assertEqual(len(provider.messages), 1)
+
     def test_bare_greetings_are_host_responses_without_model_or_tool_calls(self):
         for prompt in ("Hello", " HI! ", "hey...", "Good morning."):
             with self.subTest(prompt=prompt):

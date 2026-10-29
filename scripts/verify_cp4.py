@@ -37,7 +37,10 @@ def main():
         print("PASS | mode boundary | scripted trace rejected by --require-live")
     cp3 = run(["scripts/verify_cp3.py"])
     if "PASS | CP3 automated checks" not in cp3: raise RuntimeError(cp3)
-    print("PASS | gateway regression | 28 tests; 17 contract examples; evidence inputs unchanged")
+    gateway_count = re.search(r"gateway tests \| (\d+) tests", cp3)
+    if not gateway_count: raise RuntimeError(cp3)
+    examples = len(json.loads((ROOT / "contracts/golden-cases.json").read_text())["cases"])
+    print(f"PASS | gateway regression | {gateway_count[1]} tests; {examples} contract examples; evidence inputs unchanged")
     print("PASS | CP4 offline checks")
     print("PENDING_USER | CP4 live-model interaction and manual acceptance; no API call made by this verifier")
     return 0

@@ -235,6 +235,13 @@ class EvidenceToolsTests(unittest.TestCase):
         self.assertEqual(result["available_fact_ids"], [])
         self.assertEqual(result["assessment"], "no_matching_facts_in_fixture")
 
+    def test_explicit_topic_wide_coverage_can_establish_absence_without_inventing_metric(self):
+        result = self.success("coverage_gap", {"request": "Fixture coverage for one comparison period",
+            "topic": "leasing", "geography": "Central London", "period_start": "2025-10-01", "period_end": "2025-12-31"})
+        self.assertEqual(result["assessment"], "no_matching_facts_in_fixture")
+        self.assertEqual(result["unresolved_fields"], [])
+        self.assertNotIn("metric", result["requested_scope"])
+
     def test_ambiguous_conflicting_or_unsupported_prose_needs_scope(self):
         for request in ["What coverage exists?", "Docklands vacancy in Q2 2026",
                         "City Core and City Fringe vacancy in Q2 2026", "City vacancy in Q1 and Q2 2026",

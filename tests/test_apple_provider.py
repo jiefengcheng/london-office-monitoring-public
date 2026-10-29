@@ -74,6 +74,31 @@ class MissingComparisonPeriodTests(unittest.TestCase):
         self.assertIsNone(status)
         self.assertEqual([name for name, _, _ in calls], ["search_facts", "search_facts"])
 
+    def test_both_periods_missing_closes_for_each_topic_and_year(self):
+        for year in (2025, 2026):
+            with self.subTest(year=year):
+                context = self.context(f"What changed in Central London between Q3 and Q4 {year}?")
+                status, calls = self.gather(context, self.plan())
+                self.assertTrue(status["complete"])
+                self.assertEqual(len(calls), 6)
+                self.assertEqual(len(status["references"]), 4)
+                self.assertTrue(all(ref.startswith("coverage:") for ref in status["references"]))
+                for name, args, result in calls:
+                    self.assertTrue(args["period_start"].startswith(str(year)))
+                    if name == "coverage_gap":
+                        self.assertEqual(result["data"]["assessment"], "no_matching_facts_in_fixture")
+                        self.assertEqual(result["data"]["unresolved_fields"], [])
+                validate_reference_selection(context, self.plan(), {"references": status["references"]}, status["references"], 4)
+
+    def test_month_request_replaces_prior_dates_and_cannot_reuse_quarterly_figures(self):
+        context = self.context("What changed in Central London between May and July 2026?")
+        context["state"].update(periods=[{"start":"2026-04-01", "end":"2026-09-30"}],
+                                topics=["vacancy", "leasing"], geographies=["Central London"], entity=None)
+        self.assertEqual(explicit_period_window(context), {"period_start":"2026-05-01", "period_end":"2026-07-31"})
+        plan = {**self.plan(), "task":"brief", "clarification":"none"}
+        normalized = normalize_request_plan(plan, context)
+        self.assertEqual((normalized["task"], normalized["clarification"]), ("clarify", "period_granularity"))
+
 
 def macro_context():
     ledger = Ledger()

@@ -17,6 +17,7 @@ from agent_protocol import ROOT, Decision, Provider, ProviderError, ToolCall, ch
 from contract_validation import ContractViolation
 
 CLARIFICATIONS = {"getting_started": "Hello! I can help you explore the London office evidence, compare periods and inspect sources. Try: What changed in Central London between Q1 and Q2 2026?",
+                  "period_granularity": "I cannot calculate a monthly office-market change from the quarterly observations in this fixture. Quarterly totals and quarter-end vacancy snapshots cannot supply values for individual months. You can inspect the available observations or compare their recorded quarters.",
                   "geography": "Which publisher geography should I use?",
                   "period": "Which observation periods should I compare?",
                   "metric": "Which metric do you want to inspect?",
@@ -205,12 +206,11 @@ def render_item(item, ledger):
         else:
             scope = data["requested_scope"]
             labels = [str(scope[key]).replace("_", " ") for key in
-                      ("geography", "metric", "entity", "period_start", "period_end") if key in scope]
+                      ("geography", "metric" if "metric" in scope else "topic", "entity", "period_start", "period_end") if key in scope]
             text = "Fixture coverage — " + "; ".join(labels) + ": " + data["message"]
             if data["assessment"] == "no_matching_facts_in_fixture":
                 text += " This missing observation cannot support a period-to-period change."
             if data["unresolved_fields"]: text += " Clarify: " + ", ".join(key.replace("_", " ") for key in data["unresolved_fields"]) + "."
-            text += " " + " ".join(row["notes"] for row in data["coverage_rows"])
     for fact in facts:
         text += "\n  " + _citation(fact)
     caveats = list(dict.fromkeys(fact["caveat"] for fact in facts if fact["caveat"]))
@@ -284,6 +284,11 @@ class EvidenceAgent:
         if answer["kind"] == "answer":
             if not answer["items"] or answer["clarification"] is not None:
                 raise ValueError("An answer needs supported items and no clarification code")
+            for item in answer["items"]:
+                if item["kind"] == "coverage":
+                    observation = self.ledger.observations.get(item["ref"])
+                    if observation and observation["result"]["ok"] and observation["result"]["data"].get("assessment") == "needs_scope":
+                        raise ValueError("Unresolved coverage requires clarification, not a factual answer")
             claims = [render_item(item, self.ledger) for item in answer["items"]]
             text = "\n\n".join("- " + claim["text"] for claim in claims)
         else:
