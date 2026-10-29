@@ -17,6 +17,7 @@ from providers import OpenAIResponsesProvider
 from apple_provider import AppleFoundationModelsProvider, MODEL as APPLE_MODEL
 
 ENV_KEYS = {"MODEL_PROVIDER", "MODEL_NAME", "MODEL_API_KEY", "OPENAI_API_KEY",
+            "MODEL_API_ENDPOINT",
             "MODEL_TIMEOUT_SECONDS", "MODEL_MAX_OUTPUT_TOKENS",
             "APPLE_TIMEOUT_SECONDS", "APPLE_MAX_OUTPUT_TOKENS"}
 
@@ -70,7 +71,8 @@ def main(argv=None):
             provider = OpenAIResponsesProvider(options.model or environment.get("MODEL_NAME", ""),
                 environment.get("MODEL_API_KEY") or environment.get("OPENAI_API_KEY", ""),
                 timeout=int(environment.get("MODEL_TIMEOUT_SECONDS") or "45"),
-                max_output_tokens=int(environment.get("MODEL_MAX_OUTPUT_TOKENS") or "4096"))
+                max_output_tokens=int(environment.get("MODEL_MAX_OUTPUT_TOKENS") or "4096"),
+                endpoint=environment.get("MODEL_API_ENDPOINT") or None)
         else:
             raise ValueError("Unsupported MODEL_PROVIDER; use apple, openai or explicit scripted mode")
         path = options.trace or ROOT / "output" / ("cp4-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8] + ".jsonl")

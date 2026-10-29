@@ -301,7 +301,7 @@ class ProviderTests(unittest.TestCase):
         self.assertNotIn(KEY, json.dumps(payloads))
         self.assertNotIn("previous_response_id", payloads[1])
 
-    def test_http_request_uses_fixed_https_endpoint_and_does_not_log_key(self):
+    def test_http_request_uses_selected_endpoint_and_does_not_log_key(self):
         provider = self.provider()
         response = io.BytesIO(json.dumps(wire_response([])).encode())
         with patch.object(provider._opener, "open", return_value=response) as opened:
@@ -311,6 +311,16 @@ class ProviderTests(unittest.TestCase):
         self.assertEqual(request.get_header("Authorization"), "Bearer " + KEY)
         self.assertEqual(opened.call_args.kwargs["timeout"], 45)
         self.assertNotIn(KEY, json.dumps(provider.public_config()))
+
+    def test_endpoint_override_is_loopback_only_and_never_marked_live(self):
+        provider = OpenAIResponsesProvider("codex-simulated-model", KEY,
+                                           endpoint="http://127.0.0.1:43127/v1/responses")
+        self.assertEqual(provider.public_config()["live_model"], False)
+        self.assertEqual(provider.public_config()["simulated_endpoint"], True)
+        for endpoint in ("http://example.com/v1/responses", "https://example.com/v1/responses",
+                         "http://127.0.0.1:43127/other", "http://user:pass@127.0.0.1:43127/v1/responses"):
+            with self.subTest(endpoint=endpoint), self.assertRaises(ProviderError):
+                OpenAIResponsesProvider("model", KEY, endpoint=endpoint)
 
     def test_http_and_network_errors_are_sanitized_and_not_retried(self):
         for error, expected in [(HTTPError(ENDPOINT, 401, KEY, {}, io.BytesIO(KEY.encode())), "HTTP_401"),

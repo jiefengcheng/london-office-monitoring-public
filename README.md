@@ -18,7 +18,7 @@ cd london-office-monitoring-public
 cp .env.example .env
 ```
 
-**Set up the model endpoint before running the installer or agent.** The default is the OpenAI Responses API at `https://api.openai.com/v1/responses`. Edit `.env` and set `MODEL_NAME` to a tool-calling/structured-output model available to your account and `MODEL_API_KEY` to your local API key. Keep the key in `.env`; the file is gitignored. The OpenAI route has offline tests but has not completed end-to-end live verification. If you plan to use Apple Intelligence, set `MODEL_PROVIDER=apple` instead; that provider is on-device and needs no API key. See [provider setup](docs/user/INSTALLATION.md#provider-setup) for details.
+**Choose the provider path before running the installer or agent.** For live OpenAI, the endpoint is the Responses API at `https://api.openai.com/v1/responses`. Edit `.env` and set `MODEL_NAME` to a tool-calling/structured-output model available to your account and `MODEL_API_KEY` to your local API key. Leave `MODEL_API_ENDPOINT` blank for the official service; the local simulator sets its own loopback endpoint. Keep the key in `.env`; the file is gitignored. For Apple Intelligence, set `MODEL_PROVIDER=apple`; it is on-device and needs no API key. To run the Codex-only simulator first, leave model/key fields blank: the verification script supplies an ephemeral loopback endpoint and disposable dummy key. See [provider setup](docs/user/INSTALLATION.md#provider-setup) for details.
 
 Before installing, use Python **3.10+** with `venv`/`pip` support (Python 3.12 is recommended). On macOS, Xcode may put its Python 3.9 on `PATH`; that version is unsupported. Check `python3 --version` first. If it reports less than 3.10, install/select Python 3.12. If another virtual environment is active, deactivate it, then use `python3.12` for the install command below. Core install has no third-party runtime dependencies:
 
@@ -56,7 +56,19 @@ This provider runs on-device and needs no API key. See [Apple setup](docs/user/I
 python agent.py --provider openai --interactive
 ```
 
-Credentials stay local. There is no automatic provider fallback. The Apple profile has been exercised in independent live reviews; the API adapter has offline tests but has not completed end-to-end live verification.
+Credentials stay local. There is no automatic provider fallback. The Apple profile has been exercised in independent live reviews.
+
+## Verify the OpenAI pipeline without API credentials
+
+Run the Codex-only local suite after installation:
+
+```sh
+python scripts/verify_codex_only.py --output-dir output/codex-local-suite-01
+```
+
+It runs the existing Python CP6 offline checks unchanged, then sends the real Python agent and OpenAI Responses HTTP client through a deterministic server bound to `127.0.0.1`. The simulated exchange requests vacancy evidence, calls the comparison tool, renders cited F01/F02 results, and checks that the resulting trace is rejected by the live-acceptance checker. It needs no API key, Apple SDK, or external network access.
+
+**What this proves:** the local HTTP request/response format, provider parsing, tool-call loop, evidence enforcement, Python answer rendering and trace boundaries work together. **What it does not prove:** that `api.openai.com` is reachable, that your credentials or model are enabled, that quota is available, or that a live model will make useful decisions. The simulator returns fixed decisions and is not model inference. For live OpenAI behavior, run the [configured OpenAI profile](docs/user/REPRODUCING.md#reproduce-an-interactive-provider-profile); Apple Intelligence remains a separate on-device profile.
 
 ## Try a conversation
 

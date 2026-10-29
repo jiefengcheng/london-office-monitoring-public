@@ -45,6 +45,22 @@ python scripts/verify_slides.py
 
 Expected: exit 0 for both. The first runs installation-boundary, agent, tool and historical-replay checks without model generation. The second checks the published PDF and five preview image hashes. These offline checks do not judge live answer quality or the business presentation.
 
+## Codex-only simulated OpenAI endpoint
+
+This adds a real local HTTP round trip without changing the existing CP6, CP5, CP4 or gateway verification commands. It uses the actual `agent.py` OpenAI provider and runs a deterministic Responses-compatible simulator bound only to `127.0.0.1`. No real key, external API request, Apple SDK or model inference is involved.
+
+Run the combined Codex-only suite from a fresh clone after Python installation:
+
+```sh
+python scripts/verify_codex_only.py --output-dir output/codex-local-suite-01
+```
+
+The suite first runs `python scripts/verify_python_cp6.py` exactly as before. It then launches the agent with a disposable local model/key, exercises three HTTP exchanges (search tool call, comparison tool call, final structured answer), and runs the existing trace checker. Expected: exit 0, `PASS | Codex-only local suite`, an answer showing Central London vacancy from 7.4% to 7.2% and −20 basis points, and a simulator trace classified as offline. The simulated trace must fail `--require-live`; that refusal is a passing boundary check. Inspect `simulated-openai.jsonl`, `agent-console.txt`, `trace-check.txt`, `live-boundary-check.txt` and `simulator-report.json` in the chosen output directory.
+
+The result proves that the local HTTP transport, Responses payload parsing, provider/agent loop, evidence tool execution, constrained answer selection, Python rendering and trace checks work together. The simulator sends fixed decisions and does not infer from the prompt. It does **not** prove that the OpenAI-hosted endpoint is reachable, that a key/model is authorized, that quota is available or that a live model will behave correctly. The trace checker explicitly refuses to treat this simulation as live acceptance.
+
+To check the service and model you actually intend to use, configure a real local OpenAI key and available model in `.env`, leave `MODEL_API_ENDPOINT` blank, and use the live OpenAI profile below. Keep the Apple Intelligence probe/profile and the existing six-case Python replay as separate gates; the simulator does not replace them.
+
 ## Reproduce an interactive provider profile
 
 After installing a live provider, create a new local run directory with the supplied driver:

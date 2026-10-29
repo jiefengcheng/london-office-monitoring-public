@@ -4,6 +4,7 @@ from __future__ import annotations
 import copy
 from http.client import HTTPException
 import json
+from urllib.parse import urlsplit
 import socket
 from urllib.error import HTTPError, URLError
 from urllib.request import HTTPRedirectHandler, Request, build_opener
@@ -14,13 +15,34 @@ from agent_protocol import ANSWER_SCHEMA, Decision, ProviderError, ToolCall, str
 ENDPOINT = "https://api.openai.com/v1/responses"
 
 
+def _checked_endpoint(value):
+    if value is None or value == "":
+        return ENDPOINT
+    if not isinstance(value, str) or len(value) > 500:
+        raise ProviderError("INVALID_API_ENDPOINT")
+    try:
+        parsed = urlsplit(value)
+        official = (value == ENDPOINT and parsed.scheme == "https"
+                    and parsed.hostname == "api.openai.com" and parsed.path == "/v1/responses"
+                    and parsed.port is None and not parsed.username and not parsed.password
+                    and not parsed.query and not parsed.fragment)
+        local = (parsed.scheme == "http" and parsed.hostname in ("127.0.0.1", "localhost", "::1")
+                 and parsed.port is not None and parsed.path == "/v1/responses"
+                 and not parsed.username and not parsed.password and not parsed.query and not parsed.fragment)
+    except ValueError:
+        raise ProviderError("INVALID_API_ENDPOINT") from None
+    if not (official or local):
+        raise ProviderError("INVALID_API_ENDPOINT")
+    return value
+
+
 class _NoRedirect(HTTPRedirectHandler):
     def redirect_request(self, request, fp, code, message, headers, newurl):
         return None
 
 
 class OpenAIResponsesProvider:
-    def __init__(self, model, api_key, timeout=45, max_output_tokens=4096):
+    def __init__(self, model, api_key, timeout=45, max_output_tokens=4096, endpoint=None):
         if not isinstance(model, str) or not model.strip() or len(model) > 200:
             raise ProviderError("MODEL_NAME_REQUIRED")
         if not isinstance(api_key, str) or not api_key.strip():
@@ -31,6 +53,7 @@ class OpenAIResponsesProvider:
             raise ProviderError("INVALID_OUTPUT_LIMIT")
         self.model = model.strip()
         self._api_key = api_key.strip()
+        self.endpoint = _checked_endpoint(endpoint)
         self.timeout = timeout
         self.max_output_tokens = max_output_tokens
         self._opener = build_opener(_NoRedirect())
@@ -38,9 +61,11 @@ class OpenAIResponsesProvider:
         self._pending = None
 
     def public_config(self):
-        return {"provider": "openai", "requested_model": self.model, "endpoint": ENDPOINT,
+        simulated = self.endpoint != ENDPOINT
+        return {"provider": "openai", "requested_model": self.model, "endpoint": self.endpoint,
                 "timeout_seconds": self.timeout, "max_output_tokens": self.max_output_tokens,
-                "store": False, "parallel_tool_calls": False, "live_model": True}
+                "store": False, "parallel_tool_calls": False, "live_model": not simulated,
+                "simulated_endpoint": simulated}
 
     def start_turn(self, context, instructions):
         self._input = [{"role": "developer", "content": instructions},
@@ -51,7 +76,7 @@ class OpenAIResponsesProvider:
         body = json.dumps(payload, ensure_ascii=False, allow_nan=False).encode("utf-8")
         if len(body) > 1_000_000:
             raise ProviderError("CONTEXT_LIMIT")
-        request = Request(ENDPOINT, data=body, method="POST",
+        request = Request(self.endpoint, data=body, method="POST",
                           headers={"Authorization": "Bearer " + self._api_key,
                                    "Content-Type": "application/json"})
         try:

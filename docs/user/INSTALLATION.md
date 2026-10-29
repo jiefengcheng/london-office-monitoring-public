@@ -4,7 +4,7 @@ Run commands from the repository root. Use the [candidate clone command](../../R
 
 ## Provider setup
 
-Choose and configure the model provider before running installation or agent commands. For the default OpenAI route, copy `.env.example` to `.env` and set `MODEL_NAME` to a Responses API model available to your account and `MODEL_API_KEY` to your local key. The endpoint is the OpenAI Responses API (`https://api.openai.com/v1/responses`); credentials stay in the ignored `.env` file. Do not commit the key. This adapter has offline tests but has not completed end-to-end live verification.
+Choose the provider path before running installation or agent commands. For live OpenAI, copy `.env.example` to `.env`, set `MODEL_NAME` to a Responses API model available to your account and `MODEL_API_KEY` to your local key, and leave `MODEL_API_ENDPOINT` blank to use `https://api.openai.com/v1/responses`. Credentials stay in the ignored `.env` file; do not commit the key. If you are starting with the Codex-only simulated profile, the model/key fields can stay blank: its runner supplies a disposable dummy key and an ephemeral loopback endpoint, and never sends a request to OpenAI.
 
 For Apple Intelligence, set `MODEL_PROVIDER=apple` in `.env`; it is an on-device provider with no API endpoint or key. Install its optional SDK with the Apple profile below before running the agent. For scripted offline examples, no model setup or credentials are needed; use the explicit `scripted` provider documented in [Reproducing](REPRODUCING.md#offline-examples).
 
@@ -63,7 +63,7 @@ Use a model available to your account that supports Responses tool calling and s
 python agent.py --provider openai --interactive
 ```
 
-The selected provider receives the user message, scoped conversation context and retrieved evidence. Apple runs locally; the OpenAI route sends its requests to the API. Keys are not part of the evidence or trace output. Missing configuration stops before a request; provider errors remain visible. Check local account access/quota if an API request is refused. This adapter is covered by offline wire tests; live end-to-end verification remains outstanding.
+The selected provider receives the user message, scoped conversation context and retrieved evidence. Apple runs locally; the OpenAI route sends its requests to the configured endpoint. Keys are not part of the evidence or trace output. Missing configuration stops before a request; provider errors remain visible. Check local account access/quota if an API request is refused. The local simulator exercises the same client and agent loop over HTTP, but it cannot establish connectivity, credentials, model availability or behavior on the OpenAI-hosted service. The live OpenAI profile is a separate check.
 
 ## Configuration and output
 

@@ -53,11 +53,17 @@ A missing observation means missing evidence in this fixture, not zero market ac
 
 The historical project replay demonstrates adding already-reviewed later evidence and deduplicating it. It does not crawl websites, call an authenticated market-data API or refresh the runtime fixture. It uses a separate disposable database under `output/`.
 
+## What provider verification establishes
+
+The Codex-only suite runs the actual OpenAI Responses client over HTTP to a deterministic simulator on `127.0.0.1`, then sends the resulting trace through the normal support checker. This verifies the local request/response contract, function-call exchange, evidence gateway, answer-selection schema, Python renderer and the boundary that marks simulation as non-live. It makes no external API request and uses no account credential. The fixed simulator does not infer from prompts.
+
+That run cannot establish that the OpenAI-hosted endpoint is reachable, that a credential is valid, that a model is enabled for an account, that quota is available or that a live model will plan useful evidence actions. Those require the configured OpenAI live profile. Apple Intelligence uses a separate on-device profile and is not covered by the simulator. See the [provider verification steps](REPRODUCING.md#codex-only-simulated-openai-endpoint) for the exact commands and acceptance boundaries.
+
 ## Practical limits
 
 The interface is a Python CLI with in-memory sessions and trace inspection. It does not provide persistent conversations or a graphical evidence workspace. The bounded agentic loop can fail during planning, select an incomplete scope or reach its step/context limit; errors remain visible and a successful offline check does not guarantee every future answer. Its fixed tools and evidence controls make actions inspectable, but do not guarantee that a model will choose the best next action every time.
 
-Independent live evaluation covered the chosen Apple profile across six conversations and 18 prompts, with 20 tool calls and no errors in that recorded run. It is a bounded result, not a general accuracy claim. API live verification and untested operating systems/providers are not covered by that result. See [reproduction](REPRODUCING.md) to inspect the included recording or create a new run.
+Independent live evaluation covered the chosen Apple profile across six conversations and 18 prompts, with 20 tool calls and no errors in that recorded run. It is a bounded result, not a general accuracy claim. A local simulated endpoint run is integration evidence only; it is not an OpenAI service or live-model result. See [reproduction](REPRODUCING.md) to inspect the included recording or create a new run.
 
 ResearchWorkspace is a possible future second host of the same logical contract. It is not required to run this demo. No vector database, graph service, model training or live ingestion is part of the Python application.
 

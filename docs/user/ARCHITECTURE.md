@@ -61,10 +61,11 @@ A “no matching facts” result applies only to this supplied fixture. It never
 The CLI, tool gateway, session state, schemas, evidence ledger, answer validator and renderer are provider-neutral. Provider selection is explicit and there is no automatic fallback.
 
 - **OpenAI Responses** uses the Python standard library for HTTPS. It sends serial tool calls, passes observed results back under their call IDs and requests a final answer selection using a strict JSON schema. Requests set `store:false`. The exact model name and credentials come from the user’s local configuration.
+- **Local Responses simulator** uses the same OpenAI provider and agent code but redirects the request to an HTTP server bound to `127.0.0.1`. It returns a fixed search/comparison/answer sequence for integration checks. `MODEL_API_ENDPOINT` accepts the official OpenAI endpoint or a loopback `/v1/responses` endpoint only; arbitrary hosts and insecure remote HTTP are rejected. Simulator traces explicitly set `live_model:false` and cannot pass the live-acceptance checker.
 - **Apple Foundation Models** uses Apple's official Python SDK, `apple-fm-sdk`, for the on-device system model. Its Python host runs the schema adapter in an isolated worker. The adapter projects supported fields into Apple's generation schema, then the Python host validates the complete original tool and answer contracts. The worker receives only its required process environment, not OpenAI credentials. Input is checked against the smaller of the model’s exposed context size and 4,096 tokens, with requested output and a 256-token reserve; evidence is not silently truncated. Overflow, timeout and model errors stop the turn.
 - **Scripted** is a separate offline mechanics demonstration with a fixed tool plan. It is useful for installing or inspecting the loop without a model, but it does not perform model inference or count as a live interaction.
 
-All providers return the same decision shape to the Python host. Model choice does not change the evidence database or calculation rules. The included live evaluation covers the recorded Apple environment; the API route has offline wire tests, while end-to-end API live verification remains outstanding.
+All providers return the same decision shape to the Python host. Model choice does not change the evidence database or calculation rules. The local simulator verifies the HTTP/provider/agent integration, not the OpenAI-hosted endpoint, API credentials, account model access, quota or live model behavior. The configured OpenAI live profile and the Apple on-device profile remain separate execution paths.
 
 ## Application components
 
@@ -79,7 +80,7 @@ All providers return the same decision shape to the Python host. Model choice do
 | `contract_validation.py`, `contracts/` | Local contract validator, shared JSON schemas, comparison allowlist and golden examples |
 | `agent_skills/` | Core policy plus market briefing, project history, coverage and Apple-specific generation guidance |
 | `evidence/london_office_evidence_pack/` | Curated JSON inputs, SQLite database and deterministic query/rebuild utility |
-| `scripts/`, `tests/`, `eval/` | Integrity checks, automated cases, trace/evidence evaluation and human review worksheets |
+| `scripts/`, `tests/`, `eval/` | Integrity checks, local simulated Responses endpoint, automated cases, trace/evidence evaluation and human review worksheets |
 | `slides/` | Five-slide PPTX, PDF, source content, presenter notes and previews |
 
 No service or database migration is required for the Python application. The supplied database is read-only at runtime and can be rebuilt from the checked JSON arrays using the included `query.py build` command. Rebuild validation refuses invalid provenance or incompatible records.
