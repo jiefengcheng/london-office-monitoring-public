@@ -617,6 +617,13 @@ def normalize_request_plan(plan, context):
         start, end = periods[0]["period_start"], periods[0]["period_end"]
         if start[:4] == end[:4] and (int(start[5:7])-1)//3 == (int(end[5:7])-1)//3:
             plan.update(task="clarify", clarification="comparison_baseline")
+    # Never feed an unbounded catalogue to the small model when its own
+    # plan has resolved no topic, entity or identifier. A place alone does
+    # not select a measure. Ask for scope before retrieving unrelated facts.
+    if (plan["task"] not in ("source", "clarify", "refuse")
+            and not request_topics(plan) and not plan.get("entity")
+            and not re.search(r"\b[FS][0-9]{2,}\b", text)):
+        plan.update(task="clarify", clarification="metric" if plan["geographies"] else "scope")
     current_ids = {item.get("observation_id") for item in context.get("current_turn_tools", [])}
     if any(o["observation_id"] in current_ids and o["tool"] == "coverage_gap"
            and o["data"]["assessment"] == "needs_scope" for o in context.get("known_evidence", {}).get("observations", [])):

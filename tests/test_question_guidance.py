@@ -31,6 +31,13 @@ class QuestionGuidanceTests(unittest.TestCase):
         rendered=with_recovery('Only one period is selected.',recovery)
         self.assertEqual(rendered.count('Suggested supported question:'),1)
 
+    def test_unresolved_request_cannot_start_unbounded_catalogue_search(self):
+        for text in ['Tell me about cats.', 'London offices']:
+            state=self.state();state.update(topics=[],geographies=[],periods=[])
+            actual=normalize_request_plan(dict(task='lookup',geographies=[],topic='unspecified',entity='',count=0,clarification='none'),
+                dict(user_message=text,state=state))
+            self.assertEqual(actual['task'],'clarify')
+
     def test_two_periods_do_not_trigger_baseline_clarification(self):
         state=self.state();state['periods'].insert(0,dict(start='2026-01-01',end='2026-03-31'))
         actual=normalize_request_plan(dict(task='compare',geographies=[],topic='unspecified',entity='',count=0,clarification='none'),
