@@ -628,6 +628,12 @@ def normalize_request_plan(plan, context):
     if any(o["observation_id"] in current_ids and o["tool"] == "coverage_gap"
            and o["data"]["assessment"] == "needs_scope" for o in context.get("known_evidence", {}).get("observations", [])):
         plan.update(task="clarify", clarification="scope")
+    # A checked missing ID or incompatible comparison is terminal evidence,
+    # not an invitation to retry the same lookup or search the whole fixture.
+    if any(not item.get("ok", True) and item.get("error", {}).get("code")
+           in ("NOT_FOUND", "COMPARISON_REFUSED")
+           for item in context.get("current_turn_tools", [])):
+        plan.update(task="refuse", clarification="none")
     return plan
 
 

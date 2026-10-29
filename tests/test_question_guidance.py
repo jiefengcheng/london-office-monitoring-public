@@ -38,6 +38,15 @@ class QuestionGuidanceTests(unittest.TestCase):
                 dict(user_message=text,state=state))
             self.assertEqual(actual['task'],'clarify')
 
+    def test_checked_unknown_id_stops_without_catalogue_search(self):
+        state=self.state();state.update(topics=[],geographies=[],periods=[])
+        context=dict(user_message='Show fact F999.',state=state,current_turn_tools=[
+            dict(tool='get_fact',arguments=dict(fact_id='F999'),ok=False,error=dict(code='NOT_FOUND'))])
+        actual=normalize_request_plan(dict(task='lookup',geographies=[],topic='unspecified',entity='',count=0,clarification='none'),context)
+        self.assertEqual(actual['task'],'refuse')
+        suggestion=nearest_supported_question(context['user_message'],state)
+        self.assertEqual(suggestion['tool'],'get_fact')
+
     def test_two_periods_do_not_trigger_baseline_clarification(self):
         state=self.state();state['periods'].insert(0,dict(start='2026-01-01',end='2026-03-31'))
         actual=normalize_request_plan(dict(task='compare',geographies=[],topic='unspecified',entity='',count=0,clarification='none'),

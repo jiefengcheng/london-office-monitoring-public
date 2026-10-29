@@ -122,6 +122,7 @@ def nearest_supported_question(user_text, state):
         if places:value-=4*len({f["geography"] for f in fs}-places)
         value+=18*len(explicit_ids & (set(candidate["fact_ids"]) | {candidate["arguments"].get("source_id","")}))
         value+=8*(compare and candidate["kind"]=="compare")
+        value+=8*(not compare and not access and candidate["kind"]=="lookup")
         value+=10*(access and candidate["kind"]=="source")
         value+=2*len(set(state.get("topics",[])) & {f["topic"] for f in fs})
         value+=2*len(set(state.get("geographies",[])) & {f["geography"] for f in fs})
