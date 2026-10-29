@@ -16,7 +16,8 @@ import agent_tools
 from agent_protocol import ROOT, Decision, Provider, ProviderError, ToolCall, check_answer_shape, strict_json
 from contract_validation import ContractViolation
 
-CLARIFICATIONS = {"geography": "Which publisher geography should I use?",
+CLARIFICATIONS = {"getting_started": "Hello! I can help you explore the London office evidence, compare periods and inspect sources. Try: What changed in Central London between Q1 and Q2 2026?",
+                  "geography": "Which publisher geography should I use?",
                   "period": "Which observation periods should I compare?",
                   "metric": "Which metric do you want to inspect?",
                   "entity": "Which building or entity do you mean?",
@@ -322,6 +323,20 @@ class EvidenceAgent:
         before = asdict(self.state)
         started = time.monotonic()
         self.emit("turn_start", turn_id=turn_id, user_message=user_text, state_before=before)
+        # Bare greetings need no evidence planning or model generation. Mixed
+        # messages ("Hello, show F01") still follow the normal provider loop.
+        if re.fullmatch(r"(?:hello|hi|hey|good morning|good afternoon|good evening)[\s!.,?]*",
+                        user_text.strip(), flags=re.IGNORECASE):
+            text, claims = self._finish({"kind": "clarify", "items": [], "clarification": "getting_started",
+                                         "follow_up": None,
+                                         "selection": {key: None for key in ("topics", "geographies", "periods", "entity")}})
+            after = asdict(self.state)
+            self.emit("turn_end", turn_id=turn_id, status="clarified", error_code=None, final_answer=text,
+                      claims=claims, state_after=after, elapsed_ms=round((time.monotonic() - started) * 1000),
+                      response_origin="host_greeting")
+            return {"turn_id": turn_id, "status": "clarified", "answer": text, "claims": claims,
+                    "state_before": before, "state_after": after, "error_code": None,
+                    "response_origin": "host_greeting"}
         status, text, claims, error_code = "budget_exhausted", "The tool-step budget was reached. Narrow the request or start a new conversation.", [], None
         diagnostic_fields = {}
         try:

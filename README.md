@@ -72,6 +72,8 @@ It runs the existing Python CP6 offline checks unchanged, then sends the real Py
 
 ## Try a conversation
 
+You can start with `Hello` for a welcome and an example question. Bare greetings are handled locally; evidence questions then use your selected provider.
+
 ```text
 What changed in Central London between Q1 and Q2 2026?
 Focus on City Core and City Fringe. Did they move in the same direction?

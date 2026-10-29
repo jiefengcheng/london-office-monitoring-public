@@ -193,7 +193,7 @@ def answer_generation_schema(kind, references=None):
         return {"type": "object", "properties": {
             "references": {"type": "array", "items": {"type": "string", "enum": references or []}, "minItems": 1, "maxItems": 8},
             "selection": selection}, "required": ["references", "selection"], "additionalProperties": False}
-    properties = {"clarification": {"type": "string", "enum": ["geography", "period", "metric", "entity", "referent", "scope"]}} if kind == "clarify" else {"kind": {"type": "string", "enum": ["refuse"]}}
+    properties = {"clarification": {"type": "string", "enum": ["geography", "period", "metric", "entity", "referent", "scope", "getting_started"]}} if kind == "clarify" else {"kind": {"type": "string", "enum": ["refuse"]}}
     return {"type": "object", "properties": properties, "required": list(properties), "additionalProperties": False}
 
 

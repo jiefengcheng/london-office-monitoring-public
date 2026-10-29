@@ -42,6 +42,8 @@ A tool result is recorded in an evidence ledger. A final selection must refer to
 
 Conversation state contains selected topics, publisher geographies, periods, entity and evidence references. It is in memory for one process. A new session starts empty. A null selection retains an existing field; an explicit change can narrow geography while retaining the dates. Ambiguous “there” references after multiple or no selected places trigger a question instead of a guess. `/state`, `/new` and `/quit` expose, clear and end the session.
 
+Bare greetings such as “Hello” receive a deterministic welcome and example question from the Python host. This makes no model-generation or evidence-tool call and preserves all selected scope and observed evidence. The trace records `response_origin: host_greeting`, with no fabricated provider event or factual claim. A mixed request such as “Hello, show F01” follows the normal provider loop. A greeting alone does not demonstrate live model interaction.
+
 ## Five fixed evidence tools
 
 | Tool | Purpose | What it returns |

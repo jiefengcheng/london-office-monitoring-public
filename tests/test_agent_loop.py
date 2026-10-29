@@ -66,6 +66,49 @@ class QueueProvider:
 
 
 class AgentLoopTests(unittest.TestCase):
+    def test_bare_greetings_are_host_responses_without_model_or_tool_calls(self):
+        for prompt in ("Hello", " HI! ", "hey...", "Good morning."):
+            with self.subTest(prompt=prompt):
+                provider = QueueProvider([])
+                instance = EvidenceAgent(provider)
+                result = instance.ask(prompt)
+                self.assertEqual(result["status"], "clarified")
+                self.assertEqual(result["response_origin"], "host_greeting")
+                self.assertIn("Hello!", result["answer"])
+                self.assertIn("What changed in Central London", result["answer"])
+                self.assertEqual(result["state_before"], result["state_after"])
+                self.assertEqual(provider.contexts, [])
+                self.assertEqual(instance.ledger.observations, {})
+
+    def test_greeting_preserves_evidence_state_and_substantive_greeting_uses_provider(self):
+        provider = QueueProvider([call("get_fact", {"fact_id": "F01"}), final_fact(),
+                                  call("get_fact", {"fact_id": "F01"}), final_fact()])
+        instance = EvidenceAgent(provider)
+        first = instance.ask("Show F01")
+        greeting = instance.ask("Hello!")
+        self.assertEqual(greeting["state_after"], first["state_after"])
+        self.assertEqual(len(instance.ledger.observations), 1)
+        following = instance.ask("Hello, show F01 and its source")
+        self.assertEqual(following["status"], "answered")
+        self.assertEqual(len(provider.contexts), 2)
+        self.assertEqual(following["claims"][0]["fact_ids"], ["F01"])
+
+    def test_greeting_then_question_trace_checks_without_fake_model_events(self):
+        provider = QueueProvider([call("get_fact", {"fact_id": "F01"}), final_fact()])
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "greeting.jsonl"
+            trace = TraceWriter(path, provider.public_config())
+            instance = EvidenceAgent(provider, trace)
+            instance.ask("Hello")
+            instance.ask("Show F01")
+            trace.close()
+            report = check_trace(path)
+            events = [json.loads(line) for line in path.read_text().splitlines()]
+        self.assertEqual((report["clarified"], report["answered"], report["errors"]), (1, 1, 0))
+        self.assertFalse(any(event["event"] == "provider_step" and event.get("turn_id") == "T1" for event in events))
+        end = next(event for event in events if event["event"] == "turn_end" and event["turn_id"] == "T1")
+        self.assertEqual(end["response_origin"], "host_greeting")
+
     @classmethod
     def tearDownClass(cls):
         manifest = json.loads((ROOT / "inputs/manifest.json").read_text())
