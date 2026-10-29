@@ -20,7 +20,7 @@ def run(arguments, expected=0):
 
 
 def main():
-    tests = run(["-m", "unittest", "tests.test_agent_loop", "tests.test_apple_provider", "tests.test_cp4_live_review"])
+    tests = run(["-m", "unittest", "tests.test_agent_loop", "tests.test_apple_provider", "tests.test_cp4_live_review", "tests.test_question_guidance"])
     count = re.search(r"Ran (\d+) tests?", tests)
     if not count or int(count[1]) == 0 or "\nOK" not in tests: raise RuntimeError(tests)
     print(f"PASS | CP4 offline unit tests | {count[1]} tests; HTTP and Apple model calls mocked")

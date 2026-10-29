@@ -172,7 +172,8 @@ class AgentLoopTests(unittest.TestCase):
         self.assertEqual(result["status"], "clarified")
         self.assertEqual(result["state_after"], result["state_before"])
         self.assertEqual(result["claims"], [])
-        self.assertEqual(result["answer"], "Which geography or asset do you mean?")
+        self.assertEqual(result["base_answer"], "Which geography or asset do you mean?")
+        self.assertIsNotNone(result["recovery"]["suggestion"])
 
     def test_invented_ids_are_not_dispatched_then_corrected_by_search(self):
         provider = QueueProvider([call("get_fact", {"fact_id": "F01"}, "invented"),

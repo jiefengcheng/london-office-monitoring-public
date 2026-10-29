@@ -283,7 +283,7 @@ def answer_generation_schema(kind, references=None):
         return {"type": "object", "properties": {
             "references": {"type": "array", "items": {"type": "string", "enum": references or []}, "minItems": 1, "maxItems": 8},
             "selection": selection}, "required": ["references", "selection"], "additionalProperties": False}
-    properties = {"clarification": {"type": "string", "enum": ["geography", "period", "metric", "entity", "referent", "scope", "getting_started", "period_granularity"]}} if kind == "clarify" else {"kind": {"type": "string", "enum": ["refuse"]}}
+    properties = {"clarification": {"type": "string", "enum": ["geography", "period", "metric", "entity", "referent", "scope", "getting_started", "period_granularity", "comparison_baseline"]}} if kind == "clarify" else {"kind": {"type": "string", "enum": ["refuse"]}}
     return {"type": "object", "properties": properties, "required": list(properties), "additionalProperties": False}
 
 
@@ -607,6 +607,16 @@ def normalize_request_plan(plan, context):
             plan.update(task="clarify", clarification="period")
         elif set(request_topics(plan) or CHANGE_TOPICS) <= set(CHANGE_TOPICS):
             plan.update(task="clarify", clarification="period_granularity")
+    # A direction of movement needs two dates, even when two places are named.
+    # Preserve an explicitly selected single quarter instead of inventing Q1.
+    periods = explicit_periods(context) or [
+        {"period_start": p["start"], "period_end": p["end"]}
+        for p in context.get("state", {}).get("periods", [])]
+    temporal_change = re.search(r"\b(?:chang\w*|mov\w*|direction|fall\w*|fell|ris\w*|rose)\b", text, re.I)
+    if temporal_change and len(periods) == 1 and plan["task"] not in ("source", "refuse"):
+        start, end = periods[0]["period_start"], periods[0]["period_end"]
+        if start[:4] == end[:4] and (int(start[5:7])-1)//3 == (int(end[5:7])-1)//3:
+            plan.update(task="clarify", clarification="comparison_baseline")
     current_ids = {item.get("observation_id") for item in context.get("current_turn_tools", [])}
     if any(o["observation_id"] in current_ids and o["tool"] == "coverage_gap"
            and o["data"]["assessment"] == "needs_scope" for o in context.get("known_evidence", {}).get("observations", [])):

@@ -93,3 +93,5 @@ The [reproduction guide](docs/user/REPRODUCING.md) covers offline checks, a live
 The [five-slide presentation](slides/README.md) is supplied as a PDF with page previews. The Python source, pinned optional dependencies, curated evidence inputs, tests and evaluation tools are included in this repository. Everything needed to run the Python agent is in the checkout; optional model setup is described above.
 
 See the [delivery plan](docs/PLAN.md) for the project's longer-term direction. The runnable demo is Python-first; Apple Intelligence is optional and requires a supported local Mac.
+
+If the fixture or request scope cannot support an answer, the agent explains why and suggests one nearby question validated against the evidence gateway. Asking that question explicitly selects its stated geography and dates; the agent does not silently substitute them. See the [conversation recovery check](docs/user/REPRODUCING.md#conversation-recovery-check).

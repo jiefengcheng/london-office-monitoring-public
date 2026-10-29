@@ -215,3 +215,16 @@ For manual review, check every displayed value against the answer's cited facts,
 ## Record your run
 
 For comparable results, record the exact commit, Python version, OS, architecture, provider/model and SDK version with each live run. Keep a fresh trace for every attempt. The interactive profile, six-case evaluation and historical replay test different behaviors; a result from one does not establish the others. Counts and wording can vary by model while supported facts, scope, calculations and citations remain the review criteria.
+
+## Conversation recovery check
+
+In an Apple or configured API interactive session, ask:
+
+```text
+Canary Wharf vacancy in Q2 2026
+Focus on City Core and City Fringe. Did they move in the same direction?
+```
+
+The first answer must identify fixture-limited missing coverage. The second must preserve vacancy and both named places, explain that a second period is needed, and offer one supported Core/Fringe Q1–Q2 question. Copy that suggested question as your next input. The resulting comparison must cite F03/F04 (Core, −0.1 percentage points) and F05/F06 (Fringe, +0.1 percentage points). A generic request to respecify all scope, an invented baseline in the original answer, a tool loop or a provider error fails this check.
+
+Offline recovery and recommendation validation is included in `python3 scripts/verify_cp4.py`. These tests do not replace a chosen-provider live check.

@@ -360,7 +360,7 @@ class AppleProviderTests(unittest.TestCase):
         self.assertEqual((value["task"], value["geographies"], value["entity"]), ("brief", ["City Core"], ""))
         context["user_message"] = "What changed there in Q2 2026?"
         value = normalize_request_plan({**plan, "task": "compare", "geographies": []}, context)
-        self.assertEqual(value["task"], "compare")  # Preserve the substantive new question.
+        self.assertEqual((value["task"], value["clarification"]), ("clarify", "comparison_baseline"))  # One quarter cannot establish change.
 
     def test_unnamed_model_topic_cannot_replace_the_selected_market_scope(self):
         context = {"user_message": "What changed in Central London between Q1 and Q2 2026?", "state": {"geographies": [], "topics": []}}

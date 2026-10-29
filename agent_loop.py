@@ -15,8 +15,10 @@ import uuid
 import agent_tools
 from agent_protocol import ROOT, Decision, Provider, ProviderError, ToolCall, check_answer_shape, strict_json
 from contract_validation import ContractViolation
+from question_guidance import make_recovery, with_recovery, unsupported_intent
 
 CLARIFICATIONS = {"getting_started": "Hello! I can help you explore the London office evidence, compare periods and inspect sources. Try: What changed in Central London between Q1 and Q2 2026?",
+                  "comparison_baseline": "Only one observation period is selected. To compare directions of change for the named places, I need both a baseline and a later observation period.",
                   "period_granularity": "I cannot calculate a monthly office-market change from the quarterly observations in this fixture. Quarterly totals and quarter-end vacancy snapshots cannot supply values for individual months. You can inspect the available observations or compare their recorded quarters.",
                   "geography": "Which publisher geography should I use?",
                   "period": "Which observation periods should I compare?",
@@ -46,7 +48,7 @@ def run_identity():
         dirty = bool(subprocess.check_output(["git", "-C", str(ROOT), "status", "--porcelain", "--untracked-files=normal"], text=True))
     except (OSError, subprocess.CalledProcessError):
         commit, dirty = None, None
-    code = ["agent.py", "agent_loop.py", "agent_protocol.py", "providers.py", "apple_provider.py", "agent_tools.py",
+    code = ["agent.py", "agent_loop.py", "agent_protocol.py", "question_guidance.py", "providers.py", "apple_provider.py", "agent_tools.py",
             "contract_validation.py", "contracts/tool-contract.json", "contracts/cross-section-groups.json",
             "contracts/agent-answer.schema.json", "agent_skills/CORE.md", "agent_skills/APPLE.md",
             "apple_worker.py", "requirements.lock", "requirements-apple.lock", "requirements-apple-build.lock", "scripts/install.py", "scripts/check_cp4_trace.py",
@@ -322,9 +324,11 @@ class EvidenceAgent:
 
     def ask(self, user_text):
         if not isinstance(user_text, str) or not user_text.strip() or len(user_text) > 4000:
-            raise ValueError("Message must contain 1–4000 characters")
+            recovery=make_recovery(user_text,asdict(self.state),"invalid_input",[],{})
+            raise ValueError(with_recovery("Message must contain 1–4000 characters",recovery))
         if len(self.ledger.observations) >= 200:
-            raise ValueError("Conversation observation limit reached; use /new")
+            recovery=make_recovery(user_text,asdict(self.state),"conversation_limit",[],{})
+            raise ValueError(with_recovery("Conversation observation limit reached; use /new",recovery))
         self.turn += 1
         turn_id = f"T{self.turn}"
         before = asdict(self.state)
@@ -332,20 +336,29 @@ class EvidenceAgent:
         self.emit("turn_start", turn_id=turn_id, user_message=user_text, state_before=before)
         # Bare greetings need no evidence planning or model generation. Mixed
         # messages ("Hello, show F01") still follow the normal provider loop.
-        if re.fullmatch(r"(?:hello|hi|hey|good morning|good afternoon|good evening)[\s!.,?]*",
-                        user_text.strip(), flags=re.IGNORECASE):
-            text, claims = self._finish({"kind": "clarify", "items": [], "clarification": "getting_started",
+        greeting = re.fullmatch(r"(?:hello|hi|hey|good morning|good afternoon|good evening)[\s!.,?]*",
+                                user_text.strip(), flags=re.IGNORECASE)
+        capability = unsupported_intent(user_text)
+        if greeting or capability:
+            local_status = "clarified" if greeting else "refused"
+            clarification = "getting_started" if greeting else None
+            origin = "host_greeting" if greeting else "host_capability"
+            text, claims = self._finish({"kind": "clarify" if greeting else "refuse", "items": [], "clarification": clarification,
                                          "follow_up": None,
                                          "selection": {key: None for key in ("topics", "geographies", "periods", "entity")}})
+            base_text = text
+            recovery = make_recovery(user_text,before,local_status,claims,{},clarification)
+            text = with_recovery(text,recovery)
             after = asdict(self.state)
-            self.emit("turn_end", turn_id=turn_id, status="clarified", error_code=None, final_answer=text,
+            self.emit("turn_end", turn_id=turn_id, status=local_status, error_code=None, final_answer=text,
                       claims=claims, state_after=after, elapsed_ms=round((time.monotonic() - started) * 1000),
-                      response_origin="host_greeting")
-            return {"turn_id": turn_id, "status": "clarified", "answer": text, "claims": claims,
+                      response_origin=origin, base_answer=base_text, recovery=recovery, clarification_code=clarification)
+            return {"turn_id": turn_id, "status": local_status, "answer": text, "claims": claims,
                     "state_before": before, "state_after": after, "error_code": None,
-                    "response_origin": "host_greeting"}
+                    "response_origin": origin, "base_answer":base_text, "recovery":recovery}
         status, text, claims, error_code = "budget_exhausted", "The tool-step budget was reached. Narrow the request or start a new conversation.", [], None
         diagnostic_fields = {}
+        clarification_code = None
         try:
             self.provider.start_turn({"user_message": user_text, "state": before,
                                       "known_evidence": self.ledger.context()}, self.instructions)
@@ -381,12 +394,24 @@ class EvidenceAgent:
                         self.provider.feedback("ANSWER_REJECTED: " + str(error) + ". Use observed references and the answer-selection schema only.")
                         continue
                     status = {"answer": "answered", "clarify": "clarified", "refuse": "refused"}[decision.answer["kind"]]
+                    clarification_code = decision.answer.get("clarification")
                     break
         except ProviderError as error:
             status, error_code = "provider_error", error.code
             if error.diagnostic: diagnostic_fields["provider_diagnostic"] = error.diagnostic
             text = f"The model provider could not complete this turn ({error.code}). Check the local provider configuration and retry."
+        base_text=text
+        current_observations={key:value for key,value in self.ledger.observations.items() if key.startswith(turn_id+".")}
+        # Selected gap references may be reused from an earlier turn. Retain
+        # those checked observations when constructing the recovery explanation.
+        for claim in claims:
+            if claim["ref"] in self.ledger.observations:
+                current_observations[claim["ref"]]=self.ledger.observations[claim["ref"]]
+        recovery=make_recovery(user_text,before,status,claims,current_observations,clarification_code,error_code)
+        text=with_recovery(base_text,recovery)
         self.emit("turn_end", turn_id=turn_id, status=status, error_code=error_code, final_answer=text,
-                  claims=claims, state_after=asdict(self.state), elapsed_ms=round((time.monotonic() - started) * 1000), **diagnostic_fields)
+                  claims=claims, state_after=asdict(self.state), base_answer=base_text, recovery=recovery,
+                  clarification_code=clarification_code, elapsed_ms=round((time.monotonic() - started) * 1000), **diagnostic_fields)
         return {"turn_id": turn_id, "status": status, "answer": text, "claims": claims,
-                "state_before": before, "state_after": asdict(self.state), "error_code": error_code, **diagnostic_fields}
+                "state_before": before, "state_after": asdict(self.state), "error_code": error_code,
+                "recovery":recovery, "base_answer":base_text, **diagnostic_fields}

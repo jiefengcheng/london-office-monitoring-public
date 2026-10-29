@@ -15,6 +15,7 @@ from agent_loop import EvidenceAgent, TraceWriter
 from agent_protocol import ROOT, ProviderError
 from providers import OpenAIResponsesProvider
 from apple_provider import AppleFoundationModelsProvider, MODEL as APPLE_MODEL
+from question_guidance import make_recovery, with_recovery
 
 ENV_KEYS = {"MODEL_PROVIDER", "MODEL_NAME", "MODEL_API_KEY", "OPENAI_API_KEY",
             "MODEL_API_ENDPOINT",
@@ -114,7 +115,6 @@ def main(argv=None):
             if message == "/state":
                 print(json.dumps(asdict(agent.state), ensure_ascii=False, indent=2))
                 continue
-            if not message: continue
             try:
                 result = agent.ask(message)
             except ValueError as error:
@@ -124,10 +124,12 @@ def main(argv=None):
             if result["status"] not in ("answered", "clarified", "refused"):
                 code = 1  # A later answer or /new must not erase a failed turn.
     except ProviderError as error:
-        print(f"Configuration/provider error: {error.code}. Apple: install the pinned official apple-fm-sdk in your active Python environment and enable Apple Intelligence on a supported Mac; see README. OpenAI: explicitly select --provider openai and set MODEL_NAME and MODEL_API_KEY (or OPENAI_API_KEY) locally. No automatic fallback is used.", file=sys.stderr)
+        base=f"Configuration/provider error: {error.code}. Apple: install the pinned official apple-fm-sdk in your active Python environment and enable Apple Intelligence on a supported Mac; see README. OpenAI: explicitly select --provider openai and set MODEL_NAME and MODEL_API_KEY (or OPENAI_API_KEY) locally. No automatic fallback is used."
+        print(with_recovery(base,make_recovery(options.message or "",{},"configuration_error",[],{},error_code=error.code)),file=sys.stderr)
         return 2
     except (OSError, ValueError) as error:
-        print(f"Startup/input error: {error}", file=sys.stderr)
+        base=f"Startup/input error: {error}"
+        print(base if "Suggested supported question:" in base else with_recovery(base,make_recovery(options.message or "",{},"configuration_error",[],{})),file=sys.stderr)
         return 2
     finally:
         if trace: trace.close()

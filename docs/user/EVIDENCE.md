@@ -93,3 +93,7 @@ The model receives short task guidance alongside the shared core policy:
 - **Apple generation guidance** maps each small action onto schemas that the on-device SDK supports. It cannot relax the original contract checked by the Python host.
 
 This guidance encourages useful tool selection; code-level schema, evidence and renderer checks remain the authority.
+
+## When a request cannot be supported
+
+The agent explains the limitation and offers one nearby question whose supporting records or comparisons have been checked through the gateway. The alternative names its actual scope; it is a new question, not substitute evidence for the original request. A missing Canary Wharf observation does not become a Central London observation. A selected Q2 period alone does not establish a direction of change. Provider errors are identified as execution failures rather than evidence gaps. Recommendations do not constitute live-provider verification or guarantee that a later model invocation will succeed.

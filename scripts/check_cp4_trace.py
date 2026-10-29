@@ -15,6 +15,7 @@ import agent_tools
 from agent_loop import Ledger, render_item, CLARIFICATIONS, FOLLOW_UPS, REFUSAL_TEXT
 from agent_protocol import strict_json
 from contract_validation import validate
+from question_guidance import make_recovery, with_recovery
 
 
 def require(condition, message):
@@ -48,7 +49,7 @@ def check_trace(path, require_live=False, expect_provider=None):
             system = config.get("system_model", {})
             require(system.get("availability") == "available" and bool(system.get("os_version")), "Apple system model unavailable or unidentified")
             require(system.get("sdk_version") == "0.2.1" and bool(system.get("sdk_library_sha256")) and bool(system.get("xcode_version")), "Apple SDK library/build identity missing")
-    ledgers, opened, states = {}, {}, {}
+    ledgers, opened, states, requests = {}, {}, {}, {}
     counts = {"turns": 0, "answered": 0, "clarified": 0, "refused": 0, "errors": 0, "tool_calls": 0, "rejections": 0}
     models = set()
     run_id = header["run_id"]
@@ -67,6 +68,7 @@ def check_trace(path, require_live=False, expect_provider=None):
             require(session not in opened and (session, turn) not in seen_turns, "Duplicate or overlapping turn")
             require(event["state_before"] == states[session], "State discontinuity")
             opened[session] = turn
+            requests[(session,turn)] = event
             seen_turns.add((session, turn))
             continue
         require(opened.get(session) == turn, "Event outside its active turn")
@@ -92,6 +94,16 @@ def check_trace(path, require_live=False, expect_provider=None):
             counts["rejections"] += 1
         elif kind == "turn_end":
             status, claims, text = event["status"], event["claims"], event["final_answer"]
+            if "base_answer" in event:
+                start=requests[(session,turn)]
+                current={key:value for key,value in ledgers[session].observations.items() if key.startswith(turn+".")}
+                for claim in claims:
+                    if claim["ref"] in ledgers[session].observations:current[claim["ref"]]=ledgers[session].observations[claim["ref"]]
+                expected_recovery=make_recovery(start["user_message"],start["state_before"],status,claims,current,
+                                                event.get("clarification_code"),event.get("error_code"))
+                require(event.get("recovery")==expected_recovery,"Recovery recommendation differs from checked fixture support")
+                require(text==with_recovery(event["base_answer"],expected_recovery),"Unreferenced final text or recovery")
+                text=event["base_answer"]
             if status == "answered":
                 require(bool(claims), "Answer has no supported items")
                 for claim in claims:
@@ -102,6 +114,8 @@ def check_trace(path, require_live=False, expect_provider=None):
                 counts["answered"] += 1
             elif status == "clarified":
                 require(not claims and text in CLARIFICATIONS.values(), "Invalid clarification")
+                if "clarification_code" in event:
+                    require(CLARIFICATIONS.get(event["clarification_code"])==text,"Clarification reason code mismatch")
                 counts["clarified"] += 1
             elif status == "refused":
                 require(not claims and text == REFUSAL_TEXT, "Invalid refusal")

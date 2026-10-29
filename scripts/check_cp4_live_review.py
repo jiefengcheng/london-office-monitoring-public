@@ -39,14 +39,14 @@ def check_semantics(events):
         claims = ends[index]["claims"]
         pairs = {tuple(c["fact_ids"]) for c in claims if c["kind"] == "comparison"}
         require(required_pairs <= pairs, "Missing relevant comparison on turn " + str(index+1))
-        require(all(c["kind"] == "comparison" and all(s["geography"] in geographies for s in c["scopes"]) for c in claims), "Wrong geography or claim kind on turn " + str(index+1))
+        require(all(c["kind"] in ("comparison", "coverage") and all(s["geography"] in geographies for s in c["scopes"]) for c in claims), "Wrong geography or claim kind on turn " + str(index+1))
         require(set(ends[index]["state_after"]["geographies"]) == geographies, "Selection scope mismatch")
-        require(ends[index]["state_after"]["periods"] == [{"start": "2026-01-01", "end": "2026-06-30"}], "Q1/Q2 window not retained")
+        require(ends[index]["state_after"]["periods"] in ([{"start": "2026-01-01", "end": "2026-06-30"}], [{"start": "2026-01-01", "end": "2026-03-31"}, {"start": "2026-04-01", "end": "2026-06-30"}]), "Q1/Q2 window not retained")
     comparisons(0, {("F01", "F02")}, {"Central London"})
     comparisons(1, {("F03", "F04"), ("F05", "F06")}, {"City Core", "City Fringe"})
     comparisons(2, {("F03", "F04"), ("F05", "F06")}, {"City Core", "City Fringe"})
     require(len(ends[2]["claims"]) == 2, "Meeting briefing must contain exactly two relevant points")
-    require(all(ends[i].get("final_answer") == CLARIFICATIONS["referent"] for i in (3, 5)), "Ambiguous referent requires a referent clarification")
+    require(all(ends[i].get("base_answer", ends[i].get("final_answer")) == CLARIFICATIONS["referent"] for i in (3, 5)), "Ambiguous referent requires a referent clarification")
     require(ends[3]["state_after"] == starts[3]["state_before"], "Ambiguous referent changed scope")
     gap = ends[4]["claims"]
     require(len(gap) == 1 and gap[0]["kind"] == "coverage" and not gap[0]["fact_ids"], "Expected fixture-gap answer")

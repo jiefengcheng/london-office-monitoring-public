@@ -96,3 +96,9 @@ No service or database migration is required for the Python application. The sup
 A JSONL trace is created only when a conversation starts. It records the source commit and dirty state, code/fixture hashes, provider/model identity, turn state, tool arguments/results, supported answer references, errors and timing. It excludes API keys and raw model reasoning. Apple generation identifiers are local IDs, not Apple-issued response IDs. Traces can contain the user's prompts and retrieved evidence, so inspect them before sharing.
 
 The loop rejects an answer after provider errors, invalid evidence references, context limits or tool-step exhaustion. It does not replace a failed turn with an offline answer. See [reproduction commands](REPRODUCING.md) for checks and examples.
+
+## Recovery without changing the question
+
+Clarification, missing fixture coverage, refusals and execution failures include a reason and one suggested supported question. `question_guidance.py` ranks alternatives from gateway-returned records and validates every suggested lookup or comparison through the same gateway. Suggestions are separate from factual answer claims: they do not enter the observed evidence ledger or change conversation scope. Ask the suggested question explicitly to select its geography and dates. An execution failure remains an error even when a verified alternative is offered.
+
+For example, after `Canary Wharf vacancy in Q2 2026`, a follow-up asking whether City Core and City Fringe moved in the same direction retains vacancy and Q2. One quarter cannot establish a trend. The agent identifies the missing baseline and suggests a Core/Fringe Q1–Q2 question supported by two independently validated series. It does not silently replace Canary Wharf data or assume a baseline for the answer.
