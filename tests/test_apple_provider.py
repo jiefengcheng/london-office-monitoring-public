@@ -119,6 +119,36 @@ class MissingComparisonPeriodTests(unittest.TestCase):
         comparisons = [ref for ref in refs if ref.startswith("comparison:")]
         validate_reference_selection(context, brief, {"references":comparisons}, refs, minimum)
 
+    def test_worker_keeps_gateway_arguments_for_a_forced_partial_comparison(self):
+        from types import SimpleNamespace
+        from apple_worker import comparison_period_status, generate
+        context = self.context("Focus on City Core and City Fringe. Did they move in the same direction?")
+        context["state"].update(periods=[{"start":"2026-01-01", "end":"2026-03-31"},
+                                         {"start":"2026-04-01", "end":"2026-06-30"}],
+                                topics=["vacancy","leasing"], geographies=["Central London"])
+        context["current_turn_tools"] = []
+        plan = {**self.plan(), "geographies":["City Core","City Fringe"], "clarification":"none"}
+        ledger = Ledger()
+        for index in range(12):
+            context["known_evidence"] = ledger.context()
+            name, args = comparison_period_status(context, plan)["next_call"]
+            if name == "compare_facts": break
+            ledger.ingest({"observation_id":f"T2.O{index+1}", "tool":name, "arguments":args,
+                           "result":agent_tools.invoke(name,args)})
+        else: self.fail("No available series comparison was requested")
+        class Model:
+            context_size = 8192
+            async def token_count(self, *args, **kwargs): return 1
+        class Session:
+            def __init__(self, **kwargs): pass
+            async def respond(self, *args, **kwargs):
+                return SimpleNamespace(to_json=lambda:json.dumps({"action":"compare_facts", "filters":[]}))
+        fm = SimpleNamespace(LanguageModelSession=Session, GenerationOptions=lambda **kwargs:kwargs,
+                             SamplingMode=SimpleNamespace(greedy=lambda:"greedy"))
+        result = asyncio.run(generate(fm, Model(), {"instructions":"policy", "prompt":json.dumps(context),
+                                                  "max_output_tokens":1024, "plan":plan}, {}))
+        self.assertEqual(result["decision"], {"type":"compare_facts", "value":args})
+
 
 def macro_context():
     ledger = Ledger()

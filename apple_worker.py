@@ -772,7 +772,7 @@ async def generate(fm, model, request, identity):
                 value["selection"]["geographies"] = list(dict.fromkeys(f["geography"] for f in chosen))
         value, name = final_selection(name, value), "finish"
     elif isinstance(value, dict):
-        if name == "compare_facts":
+        if name == "compare_facts" and not forced_call:
             choice = value.get("comparison")
             if choice not in comparisons: raise ProviderError("APPLE_INVALID_DECISION_COMPARISON")
             mode, a, b = choice.split("|")
