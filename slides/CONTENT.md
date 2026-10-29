@@ -20,6 +20,8 @@ Python checks its scope and renders the supported answer.
 
 1 standalone repo
 
+Author: Dr. Geoff Cheng
+
 ### Presenter notes and sources
 
 Engineering overview. The deliverable is a standalone Python CLI, a curated historical fixture, optional model adapters, evaluation tools and public documentation. Core operation uses Python 3.10+ and the standard library. Apple needs its optional SDK and a supported Mac. The fixture has 39 facts, 20 source records and 10 coverage records. It is selective research dated 27 October 2026. No live ingestion, vector database, graph infrastructure or model training is required. Repository: https://github.com/jiefengcheng/london-office-monitoring-public/tree/codex/publication-candidate . Architecture: docs/user/ARCHITECTURE.md at source commit 983c08bb07110a0ad5816c6f1e06f03373a4fe4e.
