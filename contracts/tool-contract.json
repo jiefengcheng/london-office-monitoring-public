@@ -1,0 +1,1237 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract_version": "0.1",
+  "status": "Versioned read-only evidence tool contract",
+  "validation_vocabulary": [
+    "$ref",
+    "oneOf",
+    "type",
+    "properties",
+    "required",
+    "additionalProperties",
+    "items",
+    "minItems",
+    "maxItems",
+    "minLength",
+    "maxLength",
+    "pattern",
+    "format (date only)",
+    "minimum",
+    "maximum",
+    "const",
+    "enum"
+  ],
+  "$defs": {
+    "source": {
+      "type": "object",
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "pattern": "^S[0-9]{2,}$",
+          "minLength": 3,
+          "maxLength": 16
+        },
+        "publisher": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000,
+          "pattern": "\\S"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000,
+          "pattern": "\\S"
+        },
+        "url": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000,
+          "pattern": "\\S"
+        },
+        "published_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "\\S"
+        },
+        "retrieved_at": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000,
+          "pattern": "\\S"
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000,
+          "pattern": "\\S"
+        },
+        "access_status": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000,
+          "pattern": "\\S"
+        },
+        "role": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000,
+          "pattern": "\\S"
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 4000
+        }
+      },
+      "required": [
+        "source_id",
+        "publisher",
+        "title",
+        "url",
+        "published_at",
+        "retrieved_at",
+        "format",
+        "access_status",
+        "role",
+        "notes"
+      ],
+      "additionalProperties": false
+    },
+    "fact": {
+      "type": "object",
+      "properties": {
+        "fact_id": {
+          "type": "string",
+          "pattern": "^F[0-9]{2,}$",
+          "minLength": 3,
+          "maxLength": 16
+        },
+        "topic": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8000,
+          "pattern": "\\S"
+        },
+        "metric": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8000,
+          "pattern": "\\S"
+        },
+        "entity": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8000,
+          "pattern": "\\S"
+        },
+        "geography": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8000,
+          "pattern": "\\S"
+        },
+        "geography_basis": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8000,
+          "pattern": "\\S"
+        },
+        "segment": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8000,
+          "pattern": "\\S"
+        },
+        "value_text": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 0,
+          "maxLength": 8000
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8000,
+          "pattern": "\\S"
+        },
+        "period_kind": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8000,
+          "pattern": "\\S"
+        },
+        "period_start": {
+          "type": "string",
+          "format": "date",
+          "minLength": 10,
+          "maxLength": 10,
+          "pattern": "\\S"
+        },
+        "period_end": {
+          "type": "string",
+          "format": "date",
+          "minLength": 10,
+          "maxLength": 10,
+          "pattern": "\\S"
+        },
+        "comparison_start": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date",
+          "minLength": 10,
+          "maxLength": 10,
+          "pattern": "\\S"
+        },
+        "comparison_end": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date",
+          "minLength": 10,
+          "maxLength": 10,
+          "pattern": "\\S"
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8000,
+          "pattern": "\\S"
+        },
+        "evidence_class": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8000,
+          "pattern": "\\S"
+        },
+        "source_id": {
+          "type": "string",
+          "pattern": "^S[0-9]{2,}$",
+          "minLength": 3,
+          "maxLength": 16
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8000,
+          "pattern": "\\S"
+        },
+        "paraphrase": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8000,
+          "pattern": "\\S"
+        },
+        "caveat": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 8000
+        },
+        "series_key": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 8000
+        },
+        "source_publisher": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8000,
+          "pattern": "\\S"
+        },
+        "source_title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8000,
+          "pattern": "\\S"
+        },
+        "source_url": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8000,
+          "pattern": "\\S"
+        },
+        "source_published_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "\\S"
+        },
+        "source_retrieved_at": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8000,
+          "pattern": "\\S"
+        },
+        "value_num": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        }
+      },
+      "required": [
+        "fact_id",
+        "topic",
+        "metric",
+        "entity",
+        "geography",
+        "geography_basis",
+        "segment",
+        "value_text",
+        "unit",
+        "period_kind",
+        "period_start",
+        "period_end",
+        "comparison_start",
+        "comparison_end",
+        "status",
+        "evidence_class",
+        "source_id",
+        "locator",
+        "paraphrase",
+        "caveat",
+        "series_key",
+        "source_publisher",
+        "source_title",
+        "source_url",
+        "source_published_at",
+        "source_retrieved_at",
+        "value_num",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "coverage_row": {
+      "type": "object",
+      "properties": {
+        "requirement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "pattern": "\\S"
+        },
+        "coverage_status": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "pattern": "\\S"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^S[0-9]{2,}$",
+            "minLength": 3,
+            "maxLength": 16
+          },
+          "maxItems": 20
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 4000
+        }
+      },
+      "required": [
+        "requirement",
+        "coverage_status",
+        "sources",
+        "notes"
+      ],
+      "additionalProperties": false
+    },
+    "error_envelope": {
+      "type": "object",
+      "properties": {
+        "contract_version": {
+          "type": "string",
+          "const": "0.1"
+        },
+        "ok": {
+          "type": "boolean",
+          "const": false
+        },
+        "data": {
+          "type": "null"
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "INVALID_ARGUMENT",
+                "NOT_FOUND",
+                "COMPARISON_REFUSED",
+                "EVIDENCE_UNAVAILABLE"
+              ]
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4000,
+              "pattern": "\\S"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "contract_version",
+        "ok",
+        "data",
+        "error"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "tools": {
+    "search_facts": {
+      "description": "Retrieve bounded scoped evidence with full provenance.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "enum": [
+              "rent",
+              "vacancy",
+              "leasing",
+              "pipeline",
+              "macro",
+              "demand",
+              "esg",
+              "events"
+            ],
+            "pattern": "\\S"
+          },
+          "metric": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "pattern": "\\S"
+          },
+          "geography": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "pattern": "\\S"
+          },
+          "entity": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "pattern": "\\S"
+          },
+          "period_start": {
+            "type": "string",
+            "format": "date",
+            "minLength": 10,
+            "maxLength": 10,
+            "pattern": "\\S"
+          },
+          "period_end": {
+            "type": "string",
+            "format": "date",
+            "minLength": 10,
+            "maxLength": 10,
+            "pattern": "\\S"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "response": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "contract_version": {
+                "type": "string",
+                "const": "0.1"
+              },
+              "ok": {
+                "type": "boolean",
+                "const": true
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "facts": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/fact"
+                    },
+                    "maxItems": 100
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                  },
+                  "truncated": {
+                    "type": "boolean"
+                  },
+                  "filters": {
+                    "type": "object",
+                    "properties": {
+                      "topic": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200,
+                        "enum": [
+                          "rent",
+                          "vacancy",
+                          "leasing",
+                          "pipeline",
+                          "macro",
+                          "demand",
+                          "esg",
+                          "events"
+                        ],
+                        "pattern": "\\S"
+                      },
+                      "metric": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200,
+                        "pattern": "\\S"
+                      },
+                      "geography": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200,
+                        "pattern": "\\S"
+                      },
+                      "entity": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200,
+                        "pattern": "\\S"
+                      },
+                      "period_start": {
+                        "type": "string",
+                        "format": "date",
+                        "minLength": 10,
+                        "maxLength": 10,
+                        "pattern": "\\S"
+                      },
+                      "period_end": {
+                        "type": "string",
+                        "format": "date",
+                        "minLength": 10,
+                        "maxLength": 10,
+                        "pattern": "\\S"
+                      }
+                    },
+                    "required": [],
+                    "additionalProperties": false
+                  },
+                  "match_semantics": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500,
+                    "pattern": "\\S"
+                  }
+                },
+                "required": [
+                  "facts",
+                  "count",
+                  "limit",
+                  "truncated",
+                  "filters",
+                  "match_semantics"
+                ],
+                "additionalProperties": false
+              },
+              "error": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "contract_version",
+              "ok",
+              "data",
+              "error"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "$ref": "#/$defs/error_envelope"
+          }
+        ]
+      }
+    },
+    "get_fact": {
+      "description": "Retrieve one fact with complete source metadata.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "fact_id": {
+            "type": "string",
+            "pattern": "^F[0-9]{2,}$",
+            "minLength": 3,
+            "maxLength": 16
+          }
+        },
+        "required": [
+          "fact_id"
+        ],
+        "additionalProperties": false
+      },
+      "response": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "contract_version": {
+                "type": "string",
+                "const": "0.1"
+              },
+              "ok": {
+                "type": "boolean",
+                "const": true
+              },
+              "data": {
+                "$ref": "#/$defs/fact"
+              },
+              "error": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "contract_version",
+              "ok",
+              "data",
+              "error"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "$ref": "#/$defs/error_envelope"
+          }
+        ]
+      }
+    },
+    "compare_facts": {
+      "description": "Compare compatible time observations or an explicitly approved cross-section pair.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "fact_id_a": {
+            "type": "string",
+            "pattern": "^F[0-9]{2,}$",
+            "minLength": 3,
+            "maxLength": 16
+          },
+          "fact_id_b": {
+            "type": "string",
+            "pattern": "^F[0-9]{2,}$",
+            "minLength": 3,
+            "maxLength": 16
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "time_series",
+              "cross_section"
+            ]
+          }
+        },
+        "required": [
+          "fact_id_a",
+          "fact_id_b"
+        ],
+        "additionalProperties": false
+      },
+      "response": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "contract_version": {
+                "type": "string",
+                "const": "0.1"
+              },
+              "ok": {
+                "type": "boolean",
+                "const": true
+              },
+              "data": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "const": "time_series"
+                      },
+                      "earlier": {
+                        "$ref": "#/$defs/fact"
+                      },
+                      "later": {
+                        "$ref": "#/$defs/fact"
+                      },
+                      "difference": {
+                        "type": "string",
+                        "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                        "maxLength": 80
+                      },
+                      "difference_unit": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200,
+                        "pattern": "\\S"
+                      },
+                      "basis_points": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                        "maxLength": 80
+                      },
+                      "relative_change_percent": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                        "maxLength": 80
+                      },
+                      "relative_change_approximate": {
+                        "type": "boolean"
+                      },
+                      "rounding_caveat": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 500,
+                        "pattern": "\\S"
+                      },
+                      "calculation": {
+                        "type": "string",
+                        "const": "later_minus_earlier"
+                      }
+                    },
+                    "required": [
+                      "mode",
+                      "earlier",
+                      "later",
+                      "difference",
+                      "difference_unit",
+                      "basis_points",
+                      "relative_change_percent",
+                      "relative_change_approximate",
+                      "rounding_caveat",
+                      "calculation"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "const": "cross_section"
+                      },
+                      "a": {
+                        "$ref": "#/$defs/fact"
+                      },
+                      "b": {
+                        "$ref": "#/$defs/fact"
+                      },
+                      "difference": {
+                        "type": "string",
+                        "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                        "maxLength": 80
+                      },
+                      "difference_unit": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200,
+                        "pattern": "\\S"
+                      },
+                      "basis_points": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                        "maxLength": 80
+                      },
+                      "relative_change_percent": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                        "maxLength": 80
+                      },
+                      "relative_change_approximate": {
+                        "type": "boolean"
+                      },
+                      "rounding_caveat": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 500,
+                        "pattern": "\\S"
+                      },
+                      "calculation": {
+                        "type": "string",
+                        "const": "b_minus_a"
+                      },
+                      "comparison_group": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200,
+                        "pattern": "\\S"
+                      }
+                    },
+                    "required": [
+                      "mode",
+                      "a",
+                      "b",
+                      "difference",
+                      "difference_unit",
+                      "basis_points",
+                      "relative_change_percent",
+                      "relative_change_approximate",
+                      "rounding_caveat",
+                      "calculation",
+                      "comparison_group"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              },
+              "error": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "contract_version",
+              "ok",
+              "data",
+              "error"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "$ref": "#/$defs/error_envelope"
+          }
+        ]
+      }
+    },
+    "get_source": {
+      "description": "Retrieve original source metadata and linked fact IDs, including optional access qualifications.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "pattern": "^S[0-9]{2,}$",
+            "minLength": 3,
+            "maxLength": 16
+          }
+        },
+        "required": [
+          "source_id"
+        ],
+        "additionalProperties": false
+      },
+      "response": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "contract_version": {
+                "type": "string",
+                "const": "0.1"
+              },
+              "ok": {
+                "type": "boolean",
+                "const": true
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "source_id": {
+                    "type": "string",
+                    "pattern": "^S[0-9]{2,}$",
+                    "minLength": 3,
+                    "maxLength": 16
+                  },
+                  "publisher": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4000,
+                    "pattern": "\\S"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4000,
+                    "pattern": "\\S"
+                  },
+                  "url": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4000,
+                    "pattern": "\\S"
+                  },
+                  "published_at": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 40,
+                    "pattern": "\\S"
+                  },
+                  "retrieved_at": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4000,
+                    "pattern": "\\S"
+                  },
+                  "format": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4000,
+                    "pattern": "\\S"
+                  },
+                  "access_status": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4000,
+                    "pattern": "\\S"
+                  },
+                  "role": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4000,
+                    "pattern": "\\S"
+                  },
+                  "notes": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 4000
+                  },
+                  "fact_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^F[0-9]{2,}$",
+                      "minLength": 3,
+                      "maxLength": 16
+                    },
+                    "maxItems": 100
+                  }
+                },
+                "required": [
+                  "source_id",
+                  "publisher",
+                  "title",
+                  "url",
+                  "published_at",
+                  "retrieved_at",
+                  "format",
+                  "access_status",
+                  "role",
+                  "notes",
+                  "fact_ids"
+                ],
+                "additionalProperties": false
+              },
+              "error": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "contract_version",
+              "ok",
+              "data",
+              "error"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "$ref": "#/$defs/error_envelope"
+          }
+        ]
+      }
+    },
+    "coverage_gap": {
+      "description": "Inspect fixture coverage; unresolved prose never establishes absence or zero market activity.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "request": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000,
+            "pattern": "\\S"
+          },
+          "topic": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "enum": [
+              "rent",
+              "vacancy",
+              "leasing",
+              "pipeline",
+              "macro",
+              "demand",
+              "esg",
+              "events"
+            ],
+            "pattern": "\\S"
+          },
+          "metric": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "pattern": "\\S"
+          },
+          "geography": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "pattern": "\\S"
+          },
+          "entity": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "pattern": "\\S"
+          },
+          "period_start": {
+            "type": "string",
+            "format": "date",
+            "minLength": 10,
+            "maxLength": 10,
+            "pattern": "\\S"
+          },
+          "period_end": {
+            "type": "string",
+            "format": "date",
+            "minLength": 10,
+            "maxLength": 10,
+            "pattern": "\\S"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "additionalProperties": false
+      },
+      "response": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "contract_version": {
+                "type": "string",
+                "const": "0.1"
+              },
+              "ok": {
+                "type": "boolean",
+                "const": true
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "request": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000,
+                    "pattern": "\\S"
+                  },
+                  "requested_scope": {
+                    "type": "object",
+                    "properties": {
+                      "topic": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200,
+                        "enum": [
+                          "rent",
+                          "vacancy",
+                          "leasing",
+                          "pipeline",
+                          "macro",
+                          "demand",
+                          "esg",
+                          "events"
+                        ],
+                        "pattern": "\\S"
+                      },
+                      "metric": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200,
+                        "pattern": "\\S"
+                      },
+                      "geography": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200,
+                        "pattern": "\\S"
+                      },
+                      "entity": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200,
+                        "pattern": "\\S"
+                      },
+                      "period_start": {
+                        "type": "string",
+                        "format": "date",
+                        "minLength": 10,
+                        "maxLength": 10,
+                        "pattern": "\\S"
+                      },
+                      "period_end": {
+                        "type": "string",
+                        "format": "date",
+                        "minLength": 10,
+                        "maxLength": 10,
+                        "pattern": "\\S"
+                      }
+                    },
+                    "required": [],
+                    "additionalProperties": false
+                  },
+                  "inferred_fields": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200,
+                      "pattern": "\\S"
+                    },
+                    "maxItems": 7
+                  },
+                  "unresolved_fields": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200,
+                      "pattern": "\\S"
+                    },
+                    "maxItems": 8
+                  },
+                  "assessment": {
+                    "type": "string",
+                    "enum": [
+                      "needs_scope",
+                      "matching_facts_in_fixture",
+                      "no_matching_facts_in_fixture"
+                    ]
+                  },
+                  "message": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000,
+                    "pattern": "\\S"
+                  },
+                  "coverage_rows": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/coverage_row"
+                    },
+                    "maxItems": 10
+                  },
+                  "available_fact_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^F[0-9]{2,}$",
+                      "minLength": 3,
+                      "maxLength": 16
+                    },
+                    "maxItems": 100
+                  },
+                  "available_count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "truncated": {
+                    "type": "boolean"
+                  },
+                  "scope_limit": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000,
+                    "pattern": "\\S"
+                  }
+                },
+                "required": [
+                  "request",
+                  "requested_scope",
+                  "inferred_fields",
+                  "unresolved_fields",
+                  "assessment",
+                  "message",
+                  "coverage_rows",
+                  "available_fact_ids",
+                  "available_count",
+                  "truncated",
+                  "scope_limit"
+                ],
+                "additionalProperties": false
+              },
+              "error": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "contract_version",
+              "ok",
+              "data",
+              "error"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "$ref": "#/$defs/error_envelope"
+          }
+        ]
+      }
+    }
+  }
+}

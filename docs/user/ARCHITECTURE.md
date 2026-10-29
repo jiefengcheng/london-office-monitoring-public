@@ -1,0 +1,91 @@
+# Architecture
+
+The project separates model decisions from evidence access and answer rendering. Providers may choose a question's scope or request an evidence action, but Python and the curated data store determine what the application can actually return.
+
+```text
+User prompt + small session state
+                 │
+                 ▼
+       Provider decision interface
+      (Apple or OpenAI Responses)
+                 │ tool request
+                 ▼
+ Python argument and scope checks
+                 │
+                 ▼
+Five fixed tools ──► read-only SQLite ◄── curated source records
+                 │ observed result
+                 ▼
+ Evidence ledger + strict answer schema
+                 │ evidence references only
+                 ▼
+Python renders values, dates, sources,
+calculations, qualifications or a question
+                 │
+                 ▼
+Optional local JSONL trace
+```
+
+## The implemented agentic loop
+
+This is a real, running agent loop in `agent_loop.py`, not a future infrastructure proposal. Each turn begins with the current message, selected conversation scope and a compact ledger of evidence already observed in that conversation. The Python host starts the provider turn; the provider proposes exactly one next action—one of the five evidence tools or an answer selection. Python validates and executes a tool request, records the result in the evidence ledger, and returns that observation to the provider. The provider then decides whether to take another action, select an answer, request clarification through the supported answer path, or stop with an error. The cycle is:
+
+**interpret → choose one action → validate and execute → observe → continue or finish**
+
+The core guidance directs the model to search first unless the user names a fact/source ID or the relevant evidence is already in the ledger; it forbids outside knowledge, web fetching and invented IDs. Providers share the same Python `Provider` interface. A request cannot go straight from model-written prose to the user as a factual answer.
+
+On Apple, the worker first extracts a structured intent/scope plan from the current message and selected state. Later steps choose one allowed action and fill only that action's argument schema. Python grounds place names in the user's words, retains selected periods and checks that every requested geography is covered before accepting an answer. This makes ambiguity and incomplete submarket comparisons visible rather than letting a fluent summary conceal them.
+
+Python parses tool arguments strictly and validates them against the versioned contract. It rejects unknown tools, extra fields, malformed values, unobserved fact/source IDs and repeated successful identical searches. All database values are bound parameters; SQLite opens read-only with query-only mode enabled. The model has no SQL tool, general file-reading tool or network search tool.
+
+A tool result is recorded in an evidence ledger. A final selection must refer to a fact, source, comparison or coverage observation that is already in that ledger or to an ID named by the user and then retrieved. Python validates the selection schema, verifies every reference, and renders the user-facing claim from the stored evidence. The provider cannot write the displayed value, source URL, locator or arithmetic into a free-text answer field. If selection is invalid, the provider receives bounded feedback and may retry within the step limit; otherwise the turn fails visibly. The loop allows at most 12 provider steps per turn by default (configurable from 1 to 20), limits each message to 4,000 characters, and caps a conversation at 200 evidence observations. A turn that uses its step budget returns an explicit message to narrow the request or start a new conversation; other provider and input-limit errors are surfaced to the caller.
+
+Conversation state contains selected topics, publisher geographies, periods, entity and evidence references. It is in memory for one process. A new session starts empty. A null selection retains an existing field; an explicit change can narrow geography while retaining the dates. Ambiguous “there” references after multiple or no selected places trigger a question instead of a guess. `/state`, `/new` and `/quit` expose, clear and end the session.
+
+## Five fixed evidence tools
+
+| Tool | Purpose | What it returns |
+|---|---|---|
+| `search_facts` | Discover records by topic, metric, publisher geography, entity or observation dates | Bounded, ordered matching facts, provenance and truncation status |
+| `get_fact` | Inspect one fact by ID | The complete fact and joined source metadata |
+| `compare_facts` | Compare two observed fact IDs | Deterministic change and units, or an explicit refusal |
+| `get_source` | Inspect a source by ID | Publisher, title, access qualifications and associated facts |
+| `coverage_gap` | Check the requested scope against the fixture | Matching, missing or unresolved coverage, with available evidence |
+
+The shared v0.1 schema and 17 golden examples are in `contracts/`. Time-series comparisons require compatible series, metric, unit and scope. A cross-section comparison is a separate explicit mode limited to an approved pair. Percentage points and basis points are computed from stored values; estimated relative change is identified as approximate. Forecasts, range values and incompatible denominators are not forced into a comparison.
+
+A “no matching facts” result applies only to this supplied fixture. It never establishes that there is no market activity. If the request does not specify enough scope, the agent asks for clarification rather than broadening a publisher's geography or substituting a related metric.
+
+## Provider boundary
+
+The CLI, tool gateway, session state, schemas, evidence ledger, answer validator and renderer are provider-neutral. Provider selection is explicit and there is no automatic fallback.
+
+- **OpenAI Responses** uses the Python standard library for HTTPS. It sends serial tool calls, passes observed results back under their call IDs and requests a final answer selection using a strict JSON schema. Requests set `store:false`. The exact model name and credentials come from the user’s local configuration.
+- **Apple Foundation Models** uses Apple's official Python SDK, `apple-fm-sdk`, for the on-device system model. Its Python host runs the schema adapter in an isolated worker. The adapter projects supported fields into Apple's generation schema, then the Python host validates the complete original tool and answer contracts. The worker receives only its required process environment, not OpenAI credentials. Input is checked against the smaller of the model’s exposed context size and 4,096 tokens, with requested output and a 256-token reserve; evidence is not silently truncated. Overflow, timeout and model errors stop the turn.
+- **Scripted** is a separate offline mechanics demonstration with a fixed tool plan. It is useful for installing or inspecting the loop without a model, but it does not perform model inference or count as a live interaction.
+
+All providers return the same decision shape to the Python host. Model choice does not change the evidence database or calculation rules. The included live evaluation covers the recorded Apple environment; the API route has offline wire tests, while end-to-end API live verification remains outstanding.
+
+## Application components
+
+| Component | Responsibility |
+|---|---|
+| `agent.py` | CLI, provider selection, local environment loading, interactive commands and trace creation |
+| `agent_protocol.py` | Shared provider decision types and strict answer-schema validation |
+| `agent_loop.py` | Bounded turn loop, session state, evidence ledger, tool execution, answer checks and deterministic rendering |
+| `providers.py` | OpenAI Responses adapter |
+| `apple_provider.py`, `apple_worker.py` | Optional Apple SDK adapter, isolated model worker and provider-specific schema mapping |
+| `agent_tools.py` | Five validated read-only tool functions |
+| `contract_validation.py`, `contracts/` | Local contract validator, shared JSON schemas, comparison allowlist and golden examples |
+| `agent_skills/` | Core policy plus market briefing, project history, coverage and Apple-specific generation guidance |
+| `evidence/london_office_evidence_pack/` | Curated JSON inputs, SQLite database and deterministic query/rebuild utility |
+| `scripts/`, `tests/`, `eval/` | Integrity checks, automated cases, trace/evidence evaluation and human review worksheets |
+| `slides/` | Five-slide PPTX, PDF, source content, presenter notes and previews |
+
+No service or database migration is required for the Python application. The supplied database is read-only at runtime and can be rebuilt from the checked JSON arrays using the included `query.py build` command. Rebuild validation refuses invalid provenance or incompatible records.
+
+## Trace and privacy properties
+
+A JSONL trace is created only when a conversation starts. It records the source commit and dirty state, code/fixture hashes, provider/model identity, turn state, tool arguments/results, supported answer references, errors and timing. It excludes API keys and raw model reasoning. Apple generation identifiers are local IDs, not Apple-issued response IDs. Traces can contain the user's prompts and retrieved evidence, so inspect them before sharing.
+
+The loop rejects an answer after provider errors, invalid evidence references, context limits or tool-step exhaustion. It does not replace a failed turn with an offline answer. See [reproduction commands](REPRODUCING.md) for checks and examples.

@@ -1,0 +1,14 @@
+{
+  "format_version": 1,
+  "sha256": {
+    "evidence/london_office_evidence_pack/README.md": "40c75b4c0df279a665e133fdd822ae4e8bc14f5dde97c65a87a471e11961fbf8",
+    "evidence/london_office_evidence_pack/SOURCE_CATALOG.md": "64021d464d540359b8ccc72c37f842606f3917ac2376bee3612ef0bade12f2b6",
+    "evidence/london_office_evidence_pack/chat_cases.json": "544bc8de5945612f46ad14038eb9f6140572d757a8565a5a68ea37c66a7b1898",
+    "evidence/london_office_evidence_pack/coverage.json": "f14506e47d4cc58095473d57f1d1fbd4e7b83a2d46e03085b56927422343e44f",
+    "evidence/london_office_evidence_pack/evidence.sqlite": "4905828a98e7d0e5f498378662e6d3502391528a6b3347866aabb07398512989",
+    "evidence/london_office_evidence_pack/facts.json": "f0f283abdc287ccc9e80583a767b1b0db4e2391911cbf3fa206102bab4413016",
+    "evidence/london_office_evidence_pack/query.py": "493574423de6dc563f844acc72fceedd3d403c4856c9737599dff2a2347519a7",
+    "evidence/london_office_evidence_pack/sources.json": "2f448e43f6c1197d76bfae89e1f090cfa8c50e7571e3075394277619b07f0e90",
+    "evidence/london_office_evidence_pack/verification.txt": "64aefcd29a959bd6f69c0b13324e8e58d47c55b0e6160bee20ae80e5a946e717"
+  }
+}

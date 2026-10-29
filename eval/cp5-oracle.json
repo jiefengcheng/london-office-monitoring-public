@@ -1,0 +1,329 @@
+{
+  "version": "cp5-v1",
+  "role": "Evaluation only. Not imported by agent or providers. Required IDs are minima, not forced answer plans. Scope/interpretation requires human review.",
+  "cases": {
+    "market_change": {
+      "turn_required_fact_ids": [
+        [
+          "F01",
+          "F02",
+          "F07",
+          "F08"
+        ],
+        [
+          "F03",
+          "F04",
+          "F05",
+          "F06"
+        ],
+        [
+          "F03",
+          "F04",
+          "F05",
+          "F06"
+        ]
+      ],
+      "numeric_bindings": {
+        "central_vacancy_change_pp": {
+          "fact_ids": [
+            "F01",
+            "F02"
+          ],
+          "operation": "difference"
+        },
+        "central_vacancy_change_bps": {
+          "fact_ids": [
+            "F01",
+            "F02"
+          ],
+          "operation": "bps"
+        },
+        "take_up_change_million_sq_ft": {
+          "fact_ids": [
+            "F07",
+            "F08"
+          ],
+          "operation": "difference"
+        },
+        "take_up_relative_growth_approx_percent": {
+          "fact_ids": [
+            "F07",
+            "F08"
+          ],
+          "operation": "relative_percent"
+        },
+        "city_core_change_pp": {
+          "fact_ids": [
+            "F03",
+            "F04"
+          ],
+          "operation": "difference"
+        },
+        "city_fringe_change_pp": {
+          "fact_ids": [
+            "F05",
+            "F06"
+          ],
+          "operation": "difference"
+        }
+      }
+    },
+    "rents_and_incentives": {
+      "turn_required_fact_ids": [
+        [
+          "F09",
+          "F10"
+        ],
+        [
+          "F15",
+          "F16",
+          "F17",
+          "F18"
+        ],
+        [
+          "F15",
+          "F16"
+        ]
+      ],
+      "numeric_bindings": {
+        "west_end_minus_city_GBP_per_sq_ft": {
+          "fact_ids": [
+            "F09",
+            "F10"
+          ],
+          "operation": "difference"
+        },
+        "midtown_annual_growth_Q1_percent": {
+          "fact_ids": [
+            "F15"
+          ],
+          "operation": "value"
+        },
+        "midtown_annual_growth_Q2_percent": {
+          "fact_ids": [
+            "F16"
+          ],
+          "operation": "value"
+        },
+        "change_in_growth_rate_pp": {
+          "fact_ids": [
+            "F15",
+            "F16"
+          ],
+          "operation": "difference"
+        },
+        "canary_wharf_5_year_incentive_months": {
+          "fact_ids": [
+            "F17"
+          ],
+          "operation": "value"
+        },
+        "canary_wharf_10_year_incentive_months": {
+          "fact_ids": [
+            "F18"
+          ],
+          "operation": "value"
+        }
+      }
+    },
+    "pipeline_and_project_history": {
+      "turn_required_fact_ids": [
+        [
+          "F19",
+          "F20",
+          "F21"
+        ],
+        [
+          "F22",
+          "F23",
+          "F24",
+          "F25",
+          "F26"
+        ],
+        [
+          "F26"
+        ]
+      ],
+      "numeric_bindings": {
+        "construction_starts_2025_million_sq_ft": {
+          "fact_ids": [
+            "F19"
+          ],
+          "operation": "value"
+        },
+        "deliveries_2025_million_sq_ft": {
+          "fact_ids": [
+            "F20"
+          ],
+          "operation": "value"
+        },
+        "refurbishment_share_of_start_floorspace_percent": {
+          "fact_ids": [
+            "F21"
+          ],
+          "operation": "value"
+        },
+        "initial_completion_target": {
+          "fact_ids": [
+            "F23"
+          ],
+          "operation": "value"
+        },
+        "later_completion_target": {
+          "fact_ids": [
+            "F25"
+          ],
+          "operation": "value"
+        },
+        "practical_completion_announced": {
+          "fact_ids": [
+            "F26"
+          ],
+          "operation": "period_start"
+        },
+        "completed_office_area_sq_ft": {
+          "fact_ids": [
+            "F26"
+          ],
+          "operation": "value"
+        }
+      }
+    },
+    "prelet_and_monitoring": {
+      "turn_required_fact_ids": [
+        [
+          "F27"
+        ],
+        [
+          "F27",
+          "F28"
+        ],
+        [
+          "F29"
+        ]
+      ],
+      "numeric_bindings": {
+        "agreement_area_sq_ft": {
+          "fact_ids": [
+            "F27"
+          ],
+          "operation": "value"
+        },
+        "expected_delivery": {
+          "fact_ids": [
+            "F28"
+          ],
+          "operation": "value"
+        },
+        "minimum_prelet_share_percent_of_building_ERV": {
+          "fact_ids": [
+            "F29"
+          ],
+          "operation": "value"
+        }
+      }
+    },
+    "macro_context": {
+      "turn_required_fact_ids": [
+        [
+          "F32",
+          "F33",
+          "F34",
+          "F35"
+        ],
+        [
+          "F33",
+          "F34",
+          "F35"
+        ],
+        [
+          "F32",
+          "F33",
+          "F34",
+          "F35"
+        ]
+      ],
+      "numeric_bindings": {
+        "bank_rate_percent": {
+          "fact_ids": [
+            "F32"
+          ],
+          "operation": "value"
+        },
+        "london_employment_percent": {
+          "fact_ids": [
+            "F33"
+          ],
+          "operation": "value"
+        },
+        "london_unemployment_percent": {
+          "fact_ids": [
+            "F34"
+          ],
+          "operation": "value"
+        },
+        "UK_real_GDP_three_month_growth_percent": {
+          "fact_ids": [
+            "F35"
+          ],
+          "operation": "value"
+        }
+      }
+    },
+    "quality_and_asset_evidence": {
+      "turn_required_fact_ids": [
+        [
+          "F11",
+          "F12",
+          "F36"
+        ],
+        [
+          "F30",
+          "F31"
+        ],
+        [
+          "F30",
+          "F31"
+        ]
+      ],
+      "numeric_bindings": {
+        "H1_2026_Grade_A_take_up_share_percent": {
+          "fact_ids": [
+            "F11"
+          ],
+          "operation": "value"
+        },
+        "H1_2026_BREEAM_Excellent_Outstanding_take_up_share_percent": {
+          "fact_ids": [
+            "F12"
+          ],
+          "operation": "value"
+        },
+        "hybrid_working_GB_Jan_Mar_2025_percent": {
+          "fact_ids": [
+            "F36"
+          ],
+          "operation": "value"
+        },
+        "certificate_rating": {
+          "fact_ids": [
+            "F30"
+          ],
+          "operation": "rating"
+        },
+        "certificate_score": {
+          "fact_ids": [
+            "F30"
+          ],
+          "operation": "score"
+        },
+        "certificate_area_sq_m": {
+          "fact_ids": [
+            "F31"
+          ],
+          "operation": "value"
+        }
+      }
+    }
+  }
+}

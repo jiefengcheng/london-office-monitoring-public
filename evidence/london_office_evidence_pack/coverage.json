@@ -1,0 +1,117 @@
+[
+  {
+    "requirement": "Prime and Grade A rents",
+    "coverage_status": "partial_but_usable",
+    "sources": [
+      "S02",
+      "S03",
+      "S04"
+    ],
+    "notes": "H1 City/West End Grade A averages; Midtown annual prime growth; Canary Wharf incentive ranges. No complete five-submarket panel or transaction tape."
+  },
+  {
+    "requirement": "Vacancy and availability",
+    "coverage_status": "partial_but_usable",
+    "sources": [
+      "S01",
+      "S02"
+    ],
+    "notes": "Two-quarter Central London/Core/Fringe vacancy; City and West End Core Q2 snapshots. No standalone availability series or Canary Wharf/Midtown vacancy fixture."
+  },
+  {
+    "requirement": "Leasing activity and take-up",
+    "coverage_status": "partial_but_usable",
+    "sources": [
+      "S01",
+      "S02",
+      "S06",
+      "S09",
+      "S15"
+    ],
+    "notes": "Quarterly Central London take-up, two actual pre-let announcements, portfolio leasing. No exhaustive lease records."
+  },
+  {
+    "requirement": "Development, refurbishment and pre-lets",
+    "coverage_status": "usable_sample",
+    "sources": [
+      "S05",
+      "S06",
+      "S07",
+      "S08",
+      "S09",
+      "S16"
+    ],
+    "notes": "Annual starts/deliveries/refurbishment share; one multi-stage project; one future pre-let; one planning approval. These overlapping levels must not be summed."
+  },
+  {
+    "requirement": "City, West End, Canary Wharf, Midtown and Fringe",
+    "coverage_status": "uneven_coverage",
+    "sources": [
+      "S01",
+      "S02",
+      "S03",
+      "S04"
+    ],
+    "notes": "All named areas have some relevant evidence, but only selected metrics. Publisher geography labels retained; no borough-to-submarket equivalence or boundary polygons assumed."
+  },
+  {
+    "requirement": "Interest rates, economy and employment",
+    "coverage_status": "usable_context",
+    "sources": [
+      "S10",
+      "S11",
+      "S12"
+    ],
+    "notes": "UK rate/GDP and London regional employment. Context for interpretation; no causal model linking them to office rents."
+  },
+  {
+    "requirement": "Flight to quality, ESG and hybrid work",
+    "coverage_status": "usable_sample",
+    "sources": [
+      "S02",
+      "S08",
+      "S13",
+      "S14",
+      "S15"
+    ],
+    "notes": "Grade A/BREEAM take-up shares, a reported BREEAM achievement, scoped EPC, hybrid survey and portfolio leasing. Standards, scopes and dates remain distinct."
+  },
+  {
+    "requirement": "Emerging news and significant events",
+    "coverage_status": "historical_replay_ready",
+    "sources": [
+      "S06",
+      "S07",
+      "S08",
+      "S09",
+      "S16"
+    ],
+    "notes": "Real dated announcements support event retrieval and a future refresh replay. No live polling implemented by this pack."
+  },
+  {
+    "requirement": "Risks, opportunities and cited briefings",
+    "coverage_status": "supported_synthesis",
+    "sources": [
+      "S01",
+      "S02",
+      "S05",
+      "S08",
+      "S09",
+      "S10",
+      "S11",
+      "S12"
+    ],
+    "notes": "Can produce evidence-led watchpoints. Any causal explanation, investment recommendation or supply forecast must be distinguished from reported observations."
+  },
+  {
+    "requirement": "Raw structured data expansion",
+    "coverage_status": "optional_connectors",
+    "sources": [
+      "S17",
+      "S18",
+      "S19",
+      "S20"
+    ],
+    "notes": "EPC bulk/API requires login; rating floorspace CSV is stock; Planning Datahub access not qualified; GLA employment capacity is modelled. No optional data silently inserted as current market facts."
+  }
+]

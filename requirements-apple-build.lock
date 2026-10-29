@@ -1,0 +1,11 @@
+# Exact build/runtime dependency closure for the official Apple Python SDK.
+# Install in an isolated venv before requirements-apple.lock.
+setuptools==84.2.1 --hash=sha256:ca140b45d5325a9478f880e351484f62fef15f336462e449ca0c03c873d589c2
+build==1.6.1 --hash=sha256:ecd351a4be9d35a9eaaba244a7687143c9c7d4aea6ac964e7e7ddab20cbcf4e7
+packaging==26.3 --hash=sha256:d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c
+pyproject_hooks==1.3.3 --hash=sha256:5fc53fdac9f7bd63fbcdc868fb5f90b4784d78a53a3d3388cd738b807441a20b
+wheel==0.48.0 --hash=sha256:3217dcc807155e45db462d7ef2431f5ddda0d7273b700d05a67b271ceb1287ab
+tomli==2.5.0; python_version < "3.11" --hash=sha256:32a7b79ac57a2e83670ce329ccf675798bc5a2094783a63676866b70503f2e2b
+importlib_metadata==10.1.0; python_full_version < "3.10.2" --hash=sha256:cf45ce66a929c64e994185a809c04840d0501db17e663810d993d0f4829265c7
+zipp==4.1.2; python_full_version < "3.10.2" --hash=sha256:b30cb6cd253122169c47de245ca24a86bac2a5d3802ba15bf7ba6414eb9e144d
+ctypesgen==1.1.1 --hash=sha256:94cc6c89ccdd93a72a4c915266cde9a82bfe693331d9d880f66fe9d82af1fc87

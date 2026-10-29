@@ -1,0 +1,1070 @@
+{
+  "contract_version": "0.1",
+  "fixture_manifest_sha256": "0ad04634eee862f6996cfd382bd7f0be1f8abffab0f918423672751b6a44e4d8",
+  "status": "Portable request/response examples; arithmetic and provenance are checked in tests",
+  "cases": [
+    {
+      "id": "bounded_vacancy_search",
+      "request": {
+        "tool": "search_facts",
+        "arguments": {
+          "topic": "vacancy",
+          "geography": "City Core",
+          "period_start": "2026-04-01",
+          "period_end": "2026-06-30",
+          "limit": 1
+        }
+      },
+      "expected": {
+        "contract_version": "0.1",
+        "ok": true,
+        "data": {
+          "facts": [
+            {
+              "fact_id": "F04",
+              "topic": "vacancy",
+              "metric": "vacancy_rate",
+              "entity": "Office market",
+              "geography": "City Core",
+              "geography_basis": "publisher_defined_submarket",
+              "segment": "All offices",
+              "value_num": 5.9,
+              "value_text": null,
+              "unit": "percent",
+              "period_kind": "quarter_end",
+              "period_start": "2026-06-30",
+              "period_end": "2026-06-30",
+              "comparison_start": null,
+              "comparison_end": null,
+              "status": "publisher_estimate",
+              "evidence_class": "broker_market_estimate",
+              "source_id": "S02",
+              "locator": "Supply and vacancy; named geography paragraph",
+              "paraphrase": "vacancy rate: 5.9 percent.",
+              "caveat": "Publisher-defined coverage; not interchangeable with another broker’s availability or vacancy series.",
+              "series_key": "savills_vacancy_city_core",
+              "source_publisher": "Savills",
+              "source_title": "Central London Office Market Q2 2026",
+              "source_url": "https://www.savills.co.uk/research_articles/229130/393427-0",
+              "source_published_at": "2026-08-06",
+              "source_retrieved_at": "2026-10-27",
+              "source": {
+                "source_id": "S02",
+                "publisher": "Savills",
+                "title": "Central London Office Market Q2 2026",
+                "url": "https://www.savills.co.uk/research_articles/229130/393427-0",
+                "published_at": "2026-08-06",
+                "retrieved_at": "2026-10-27",
+                "format": "HTML",
+                "access_status": "Public page opened and relevant passages inspected",
+                "role": "fixture",
+                "notes": "Publisher-defined market estimates. Average achieved rents are not prime benchmarks. The fixture avoids the inconsistent first-time-over-100 claim and ambiguous Q1 rent wording."
+              }
+            }
+          ],
+          "count": 1,
+          "limit": 1,
+          "truncated": false,
+          "filters": {
+            "topic": "vacancy",
+            "geography": "City Core",
+            "period_start": "2026-04-01",
+            "period_end": "2026-06-30"
+          },
+          "match_semantics": "topic: canonical enum; metric/geography: exact ASCII-case-insensitive; entity: literal ASCII-case-insensitive substring; periods: inclusive interval overlap; order: fact_id ascending; no geography aliases"
+        },
+        "error": null
+      }
+    },
+    {
+      "id": "fact_F01",
+      "request": {
+        "tool": "get_fact",
+        "arguments": {
+          "fact_id": "F01"
+        }
+      },
+      "expected": {
+        "contract_version": "0.1",
+        "ok": true,
+        "data": {
+          "fact_id": "F01",
+          "topic": "vacancy",
+          "metric": "vacancy_rate",
+          "entity": "Office market",
+          "geography": "Central London",
+          "geography_basis": "publisher_defined_submarket",
+          "segment": "All offices",
+          "value_num": 7.4,
+          "value_text": null,
+          "unit": "percent",
+          "period_kind": "quarter_end",
+          "period_start": "2026-03-31",
+          "period_end": "2026-03-31",
+          "comparison_start": null,
+          "comparison_end": null,
+          "status": "publisher_estimate",
+          "evidence_class": "broker_market_estimate",
+          "source_id": "S01",
+          "locator": "Supply and vacancy; named geography paragraph",
+          "paraphrase": "vacancy rate: 7.4 percent.",
+          "caveat": "Publisher-defined coverage; not interchangeable with another broker’s availability or vacancy series.",
+          "series_key": "savills_vacancy_central_london",
+          "source_publisher": "Savills",
+          "source_title": "Central London Office Market Watch Q1 2026",
+          "source_url": "https://www.savills.co.uk/research_articles/229130/390337-0",
+          "source_published_at": "2026-05-01",
+          "source_retrieved_at": "2026-10-27",
+          "source": {
+            "source_id": "S01",
+            "publisher": "Savills",
+            "title": "Central London Office Market Watch Q1 2026",
+            "url": "https://www.savills.co.uk/research_articles/229130/390337-0",
+            "published_at": "2026-05-01",
+            "retrieved_at": "2026-10-27",
+            "format": "HTML",
+            "access_status": "Public page opened and relevant passages inspected",
+            "role": "fixture",
+            "notes": "Publisher-defined market estimates. Quarter and half-year fields must remain distinct. Only selected factual observations are included; no full report text."
+          }
+        },
+        "error": null
+      }
+    },
+    {
+      "id": "source_S01",
+      "request": {
+        "tool": "get_source",
+        "arguments": {
+          "source_id": "S01"
+        }
+      },
+      "expected": {
+        "contract_version": "0.1",
+        "ok": true,
+        "data": {
+          "source_id": "S01",
+          "publisher": "Savills",
+          "title": "Central London Office Market Watch Q1 2026",
+          "url": "https://www.savills.co.uk/research_articles/229130/390337-0",
+          "published_at": "2026-05-01",
+          "retrieved_at": "2026-10-27",
+          "format": "HTML",
+          "access_status": "Public page opened and relevant passages inspected",
+          "role": "fixture",
+          "notes": "Publisher-defined market estimates. Quarter and half-year fields must remain distinct. Only selected factual observations are included; no full report text.",
+          "fact_ids": [
+            "F01",
+            "F03",
+            "F05",
+            "F07"
+          ]
+        },
+        "error": null
+      }
+    },
+    {
+      "id": "optional_source_S17",
+      "request": {
+        "tool": "get_source",
+        "arguments": {
+          "source_id": "S17"
+        }
+      },
+      "expected": {
+        "contract_version": "0.1",
+        "ok": true,
+        "data": {
+          "source_id": "S17",
+          "publisher": "MHCLG",
+          "title": "Get energy performance of buildings data",
+          "url": "https://get-energy-performance-data.communities.gov.uk/",
+          "published_at": null,
+          "retrieved_at": "2026-10-27",
+          "format": "HTML",
+          "access_status": "Public page opened and relevant passages inspected",
+          "role": "optional_connector",
+          "notes": "Public service documentation read. Bulk CSV requires GOV.UK One Login; API requires bearer token. Authenticated API not called. Includes expired/superseded certificates. Follow current API schema, not older basic-auth examples.",
+          "fact_ids": []
+        },
+        "error": null
+      }
+    },
+    {
+      "id": "vacancy_change",
+      "request": {
+        "tool": "compare_facts",
+        "arguments": {
+          "fact_id_a": "F01",
+          "fact_id_b": "F02"
+        }
+      },
+      "expected": {
+        "contract_version": "0.1",
+        "ok": true,
+        "data": {
+          "mode": "time_series",
+          "earlier": {
+            "fact_id": "F01",
+            "topic": "vacancy",
+            "metric": "vacancy_rate",
+            "entity": "Office market",
+            "geography": "Central London",
+            "geography_basis": "publisher_defined_submarket",
+            "segment": "All offices",
+            "value_num": 7.4,
+            "value_text": null,
+            "unit": "percent",
+            "period_kind": "quarter_end",
+            "period_start": "2026-03-31",
+            "period_end": "2026-03-31",
+            "comparison_start": null,
+            "comparison_end": null,
+            "status": "publisher_estimate",
+            "evidence_class": "broker_market_estimate",
+            "source_id": "S01",
+            "locator": "Supply and vacancy; named geography paragraph",
+            "paraphrase": "vacancy rate: 7.4 percent.",
+            "caveat": "Publisher-defined coverage; not interchangeable with another broker’s availability or vacancy series.",
+            "series_key": "savills_vacancy_central_london",
+            "source_publisher": "Savills",
+            "source_title": "Central London Office Market Watch Q1 2026",
+            "source_url": "https://www.savills.co.uk/research_articles/229130/390337-0",
+            "source_published_at": "2026-05-01",
+            "source_retrieved_at": "2026-10-27",
+            "source": {
+              "source_id": "S01",
+              "publisher": "Savills",
+              "title": "Central London Office Market Watch Q1 2026",
+              "url": "https://www.savills.co.uk/research_articles/229130/390337-0",
+              "published_at": "2026-05-01",
+              "retrieved_at": "2026-10-27",
+              "format": "HTML",
+              "access_status": "Public page opened and relevant passages inspected",
+              "role": "fixture",
+              "notes": "Publisher-defined market estimates. Quarter and half-year fields must remain distinct. Only selected factual observations are included; no full report text."
+            }
+          },
+          "later": {
+            "fact_id": "F02",
+            "topic": "vacancy",
+            "metric": "vacancy_rate",
+            "entity": "Office market",
+            "geography": "Central London",
+            "geography_basis": "publisher_defined_submarket",
+            "segment": "All offices",
+            "value_num": 7.2,
+            "value_text": null,
+            "unit": "percent",
+            "period_kind": "quarter_end",
+            "period_start": "2026-06-30",
+            "period_end": "2026-06-30",
+            "comparison_start": null,
+            "comparison_end": null,
+            "status": "publisher_estimate",
+            "evidence_class": "broker_market_estimate",
+            "source_id": "S02",
+            "locator": "Supply and vacancy; named geography paragraph",
+            "paraphrase": "vacancy rate: 7.2 percent.",
+            "caveat": "Publisher-defined coverage; not interchangeable with another broker’s availability or vacancy series.",
+            "series_key": "savills_vacancy_central_london",
+            "source_publisher": "Savills",
+            "source_title": "Central London Office Market Q2 2026",
+            "source_url": "https://www.savills.co.uk/research_articles/229130/393427-0",
+            "source_published_at": "2026-08-06",
+            "source_retrieved_at": "2026-10-27",
+            "source": {
+              "source_id": "S02",
+              "publisher": "Savills",
+              "title": "Central London Office Market Q2 2026",
+              "url": "https://www.savills.co.uk/research_articles/229130/393427-0",
+              "published_at": "2026-08-06",
+              "retrieved_at": "2026-10-27",
+              "format": "HTML",
+              "access_status": "Public page opened and relevant passages inspected",
+              "role": "fixture",
+              "notes": "Publisher-defined market estimates. Average achieved rents are not prime benchmarks. The fixture avoids the inconsistent first-time-over-100 claim and ambiguous Q1 rent wording."
+            }
+          },
+          "difference": "-0.2",
+          "difference_unit": "percentage points",
+          "basis_points": "-20",
+          "relative_change_percent": null,
+          "relative_change_approximate": false,
+          "calculation": "later_minus_earlier",
+          "rounding_caveat": "Calculated from reported values; their rounding and scope limits still apply."
+        },
+        "error": null
+      }
+    },
+    {
+      "id": "vacancy_reversed_arguments",
+      "request": {
+        "tool": "compare_facts",
+        "arguments": {
+          "fact_id_a": "F02",
+          "fact_id_b": "F01"
+        }
+      },
+      "expected": {
+        "contract_version": "0.1",
+        "ok": true,
+        "data": {
+          "mode": "time_series",
+          "earlier": {
+            "fact_id": "F01",
+            "topic": "vacancy",
+            "metric": "vacancy_rate",
+            "entity": "Office market",
+            "geography": "Central London",
+            "geography_basis": "publisher_defined_submarket",
+            "segment": "All offices",
+            "value_num": 7.4,
+            "value_text": null,
+            "unit": "percent",
+            "period_kind": "quarter_end",
+            "period_start": "2026-03-31",
+            "period_end": "2026-03-31",
+            "comparison_start": null,
+            "comparison_end": null,
+            "status": "publisher_estimate",
+            "evidence_class": "broker_market_estimate",
+            "source_id": "S01",
+            "locator": "Supply and vacancy; named geography paragraph",
+            "paraphrase": "vacancy rate: 7.4 percent.",
+            "caveat": "Publisher-defined coverage; not interchangeable with another broker’s availability or vacancy series.",
+            "series_key": "savills_vacancy_central_london",
+            "source_publisher": "Savills",
+            "source_title": "Central London Office Market Watch Q1 2026",
+            "source_url": "https://www.savills.co.uk/research_articles/229130/390337-0",
+            "source_published_at": "2026-05-01",
+            "source_retrieved_at": "2026-10-27",
+            "source": {
+              "source_id": "S01",
+              "publisher": "Savills",
+              "title": "Central London Office Market Watch Q1 2026",
+              "url": "https://www.savills.co.uk/research_articles/229130/390337-0",
+              "published_at": "2026-05-01",
+              "retrieved_at": "2026-10-27",
+              "format": "HTML",
+              "access_status": "Public page opened and relevant passages inspected",
+              "role": "fixture",
+              "notes": "Publisher-defined market estimates. Quarter and half-year fields must remain distinct. Only selected factual observations are included; no full report text."
+            }
+          },
+          "later": {
+            "fact_id": "F02",
+            "topic": "vacancy",
+            "metric": "vacancy_rate",
+            "entity": "Office market",
+            "geography": "Central London",
+            "geography_basis": "publisher_defined_submarket",
+            "segment": "All offices",
+            "value_num": 7.2,
+            "value_text": null,
+            "unit": "percent",
+            "period_kind": "quarter_end",
+            "period_start": "2026-06-30",
+            "period_end": "2026-06-30",
+            "comparison_start": null,
+            "comparison_end": null,
+            "status": "publisher_estimate",
+            "evidence_class": "broker_market_estimate",
+            "source_id": "S02",
+            "locator": "Supply and vacancy; named geography paragraph",
+            "paraphrase": "vacancy rate: 7.2 percent.",
+            "caveat": "Publisher-defined coverage; not interchangeable with another broker’s availability or vacancy series.",
+            "series_key": "savills_vacancy_central_london",
+            "source_publisher": "Savills",
+            "source_title": "Central London Office Market Q2 2026",
+            "source_url": "https://www.savills.co.uk/research_articles/229130/393427-0",
+            "source_published_at": "2026-08-06",
+            "source_retrieved_at": "2026-10-27",
+            "source": {
+              "source_id": "S02",
+              "publisher": "Savills",
+              "title": "Central London Office Market Q2 2026",
+              "url": "https://www.savills.co.uk/research_articles/229130/393427-0",
+              "published_at": "2026-08-06",
+              "retrieved_at": "2026-10-27",
+              "format": "HTML",
+              "access_status": "Public page opened and relevant passages inspected",
+              "role": "fixture",
+              "notes": "Publisher-defined market estimates. Average achieved rents are not prime benchmarks. The fixture avoids the inconsistent first-time-over-100 claim and ambiguous Q1 rent wording."
+            }
+          },
+          "difference": "-0.2",
+          "difference_unit": "percentage points",
+          "basis_points": "-20",
+          "relative_change_percent": null,
+          "relative_change_approximate": false,
+          "calculation": "later_minus_earlier",
+          "rounding_caveat": "Calculated from reported values; their rounding and scope limits still apply."
+        },
+        "error": null
+      }
+    },
+    {
+      "id": "incompatible_metrics",
+      "request": {
+        "tool": "compare_facts",
+        "arguments": {
+          "fact_id_a": "F01",
+          "fact_id_b": "F07"
+        }
+      },
+      "expected": {
+        "contract_version": "0.1",
+        "ok": false,
+        "data": null,
+        "error": {
+          "code": "COMPARISON_REFUSED",
+          "message": "Incompatible evidence: series_key, metric, unit, period_kind."
+        }
+      }
+    },
+    {
+      "id": "grade_a_cross_section",
+      "request": {
+        "tool": "compare_facts",
+        "arguments": {
+          "fact_id_a": "F09",
+          "fact_id_b": "F10",
+          "mode": "cross_section"
+        }
+      },
+      "expected": {
+        "contract_version": "0.1",
+        "ok": true,
+        "data": {
+          "mode": "cross_section",
+          "a": {
+            "fact_id": "F09",
+            "topic": "rent",
+            "metric": "average_grade_a_rent",
+            "entity": "Office market",
+            "geography": "City",
+            "geography_basis": "publisher_defined_submarket",
+            "segment": "Grade A",
+            "value_num": 76.21,
+            "value_text": null,
+            "unit": "GBP_per_sq_ft",
+            "period_kind": "half_year",
+            "period_start": "2026-01-01",
+            "period_end": "2026-06-30",
+            "comparison_start": null,
+            "comparison_end": null,
+            "status": "publisher_estimate",
+            "evidence_class": "broker_market_estimate",
+            "source_id": "S02",
+            "locator": "City and West End rents; Grade A paragraph",
+            "paraphrase": "average grade a rent: 76.21 GBP per sq ft.",
+            "caveat": "As reported for H1. Averaging details and annualisation are not specified in the extracted paragraph. Not a prime benchmark or a building offer; no Q1 rent trend inferred.",
+            "series_key": "savills_grade_a_average_city",
+            "source_publisher": "Savills",
+            "source_title": "Central London Office Market Q2 2026",
+            "source_url": "https://www.savills.co.uk/research_articles/229130/393427-0",
+            "source_published_at": "2026-08-06",
+            "source_retrieved_at": "2026-10-27",
+            "source": {
+              "source_id": "S02",
+              "publisher": "Savills",
+              "title": "Central London Office Market Q2 2026",
+              "url": "https://www.savills.co.uk/research_articles/229130/393427-0",
+              "published_at": "2026-08-06",
+              "retrieved_at": "2026-10-27",
+              "format": "HTML",
+              "access_status": "Public page opened and relevant passages inspected",
+              "role": "fixture",
+              "notes": "Publisher-defined market estimates. Average achieved rents are not prime benchmarks. The fixture avoids the inconsistent first-time-over-100 claim and ambiguous Q1 rent wording."
+            }
+          },
+          "b": {
+            "fact_id": "F10",
+            "topic": "rent",
+            "metric": "average_grade_a_rent",
+            "entity": "Office market",
+            "geography": "West End",
+            "geography_basis": "publisher_defined_submarket",
+            "segment": "Grade A",
+            "value_num": 106.17,
+            "value_text": null,
+            "unit": "GBP_per_sq_ft",
+            "period_kind": "half_year",
+            "period_start": "2026-01-01",
+            "period_end": "2026-06-30",
+            "comparison_start": null,
+            "comparison_end": null,
+            "status": "publisher_estimate",
+            "evidence_class": "broker_market_estimate",
+            "source_id": "S02",
+            "locator": "City and West End rents; Grade A paragraph",
+            "paraphrase": "average grade a rent: 106.17 GBP per sq ft.",
+            "caveat": "As reported for H1. Averaging details and annualisation are not specified in the extracted paragraph. Not a prime benchmark or a building offer; no Q1 rent trend inferred.",
+            "series_key": "savills_grade_a_average_west_end",
+            "source_publisher": "Savills",
+            "source_title": "Central London Office Market Q2 2026",
+            "source_url": "https://www.savills.co.uk/research_articles/229130/393427-0",
+            "source_published_at": "2026-08-06",
+            "source_retrieved_at": "2026-10-27",
+            "source": {
+              "source_id": "S02",
+              "publisher": "Savills",
+              "title": "Central London Office Market Q2 2026",
+              "url": "https://www.savills.co.uk/research_articles/229130/393427-0",
+              "published_at": "2026-08-06",
+              "retrieved_at": "2026-10-27",
+              "format": "HTML",
+              "access_status": "Public page opened and relevant passages inspected",
+              "role": "fixture",
+              "notes": "Publisher-defined market estimates. Average achieved rents are not prime benchmarks. The fixture avoids the inconsistent first-time-over-100 claim and ambiguous Q1 rent wording."
+            }
+          },
+          "difference": "29.96",
+          "difference_unit": "GBP_per_sq_ft",
+          "basis_points": null,
+          "relative_change_percent": null,
+          "relative_change_approximate": false,
+          "calculation": "b_minus_a",
+          "comparison_group": "savills_h1_2026_grade_a_city_west_end",
+          "rounding_caveat": "Calculated from reported values; their rounding and scope limits still apply."
+        },
+        "error": null
+      }
+    },
+    {
+      "id": "grade_a_reverse_cross_section",
+      "request": {
+        "tool": "compare_facts",
+        "arguments": {
+          "fact_id_a": "F10",
+          "fact_id_b": "F09",
+          "mode": "cross_section"
+        }
+      },
+      "expected": {
+        "contract_version": "0.1",
+        "ok": true,
+        "data": {
+          "mode": "cross_section",
+          "a": {
+            "fact_id": "F10",
+            "topic": "rent",
+            "metric": "average_grade_a_rent",
+            "entity": "Office market",
+            "geography": "West End",
+            "geography_basis": "publisher_defined_submarket",
+            "segment": "Grade A",
+            "value_num": 106.17,
+            "value_text": null,
+            "unit": "GBP_per_sq_ft",
+            "period_kind": "half_year",
+            "period_start": "2026-01-01",
+            "period_end": "2026-06-30",
+            "comparison_start": null,
+            "comparison_end": null,
+            "status": "publisher_estimate",
+            "evidence_class": "broker_market_estimate",
+            "source_id": "S02",
+            "locator": "City and West End rents; Grade A paragraph",
+            "paraphrase": "average grade a rent: 106.17 GBP per sq ft.",
+            "caveat": "As reported for H1. Averaging details and annualisation are not specified in the extracted paragraph. Not a prime benchmark or a building offer; no Q1 rent trend inferred.",
+            "series_key": "savills_grade_a_average_west_end",
+            "source_publisher": "Savills",
+            "source_title": "Central London Office Market Q2 2026",
+            "source_url": "https://www.savills.co.uk/research_articles/229130/393427-0",
+            "source_published_at": "2026-08-06",
+            "source_retrieved_at": "2026-10-27",
+            "source": {
+              "source_id": "S02",
+              "publisher": "Savills",
+              "title": "Central London Office Market Q2 2026",
+              "url": "https://www.savills.co.uk/research_articles/229130/393427-0",
+              "published_at": "2026-08-06",
+              "retrieved_at": "2026-10-27",
+              "format": "HTML",
+              "access_status": "Public page opened and relevant passages inspected",
+              "role": "fixture",
+              "notes": "Publisher-defined market estimates. Average achieved rents are not prime benchmarks. The fixture avoids the inconsistent first-time-over-100 claim and ambiguous Q1 rent wording."
+            }
+          },
+          "b": {
+            "fact_id": "F09",
+            "topic": "rent",
+            "metric": "average_grade_a_rent",
+            "entity": "Office market",
+            "geography": "City",
+            "geography_basis": "publisher_defined_submarket",
+            "segment": "Grade A",
+            "value_num": 76.21,
+            "value_text": null,
+            "unit": "GBP_per_sq_ft",
+            "period_kind": "half_year",
+            "period_start": "2026-01-01",
+            "period_end": "2026-06-30",
+            "comparison_start": null,
+            "comparison_end": null,
+            "status": "publisher_estimate",
+            "evidence_class": "broker_market_estimate",
+            "source_id": "S02",
+            "locator": "City and West End rents; Grade A paragraph",
+            "paraphrase": "average grade a rent: 76.21 GBP per sq ft.",
+            "caveat": "As reported for H1. Averaging details and annualisation are not specified in the extracted paragraph. Not a prime benchmark or a building offer; no Q1 rent trend inferred.",
+            "series_key": "savills_grade_a_average_city",
+            "source_publisher": "Savills",
+            "source_title": "Central London Office Market Q2 2026",
+            "source_url": "https://www.savills.co.uk/research_articles/229130/393427-0",
+            "source_published_at": "2026-08-06",
+            "source_retrieved_at": "2026-10-27",
+            "source": {
+              "source_id": "S02",
+              "publisher": "Savills",
+              "title": "Central London Office Market Q2 2026",
+              "url": "https://www.savills.co.uk/research_articles/229130/393427-0",
+              "published_at": "2026-08-06",
+              "retrieved_at": "2026-10-27",
+              "format": "HTML",
+              "access_status": "Public page opened and relevant passages inspected",
+              "role": "fixture",
+              "notes": "Publisher-defined market estimates. Average achieved rents are not prime benchmarks. The fixture avoids the inconsistent first-time-over-100 claim and ambiguous Q1 rent wording."
+            }
+          },
+          "difference": "-29.96",
+          "difference_unit": "GBP_per_sq_ft",
+          "basis_points": null,
+          "relative_change_percent": null,
+          "relative_change_approximate": false,
+          "calculation": "b_minus_a",
+          "comparison_group": "savills_h1_2026_grade_a_city_west_end",
+          "rounding_caveat": "Calculated from reported values; their rounding and scope limits still apply."
+        },
+        "error": null
+      }
+    },
+    {
+      "id": "cross_section_is_not_time_trend",
+      "request": {
+        "tool": "compare_facts",
+        "arguments": {
+          "fact_id_a": "F09",
+          "fact_id_b": "F10"
+        }
+      },
+      "expected": {
+        "contract_version": "0.1",
+        "ok": false,
+        "data": null,
+        "error": {
+          "code": "COMPARISON_REFUSED",
+          "message": "Incompatible evidence: series_key, geography."
+        }
+      }
+    },
+    {
+      "id": "rounded_take_up_growth",
+      "request": {
+        "tool": "compare_facts",
+        "arguments": {
+          "fact_id_a": "F07",
+          "fact_id_b": "F08"
+        }
+      },
+      "expected": {
+        "contract_version": "0.1",
+        "ok": true,
+        "data": {
+          "mode": "time_series",
+          "earlier": {
+            "fact_id": "F07",
+            "topic": "leasing",
+            "metric": "quarterly_take_up",
+            "entity": "Office market",
+            "geography": "Central London",
+            "geography_basis": "publisher_defined_submarket",
+            "segment": "All offices",
+            "value_num": 2.2,
+            "value_text": null,
+            "unit": "million_sq_ft",
+            "period_kind": "quarter",
+            "period_start": "2026-01-01",
+            "period_end": "2026-03-31",
+            "comparison_start": null,
+            "comparison_end": null,
+            "status": "publisher_estimate",
+            "evidence_class": "broker_market_estimate",
+            "source_id": "S01",
+            "locator": "Leasing summary; first bullet",
+            "paraphrase": "quarterly take up: 2.2 million sq ft.",
+            "caveat": "Rounded quarterly totals; their sum is not an exact reconstruction of a separately published H1 total. Take-up is not occupancy.",
+            "series_key": "savills_take_up_central_london",
+            "source_publisher": "Savills",
+            "source_title": "Central London Office Market Watch Q1 2026",
+            "source_url": "https://www.savills.co.uk/research_articles/229130/390337-0",
+            "source_published_at": "2026-05-01",
+            "source_retrieved_at": "2026-10-27",
+            "source": {
+              "source_id": "S01",
+              "publisher": "Savills",
+              "title": "Central London Office Market Watch Q1 2026",
+              "url": "https://www.savills.co.uk/research_articles/229130/390337-0",
+              "published_at": "2026-05-01",
+              "retrieved_at": "2026-10-27",
+              "format": "HTML",
+              "access_status": "Public page opened and relevant passages inspected",
+              "role": "fixture",
+              "notes": "Publisher-defined market estimates. Quarter and half-year fields must remain distinct. Only selected factual observations are included; no full report text."
+            }
+          },
+          "later": {
+            "fact_id": "F08",
+            "topic": "leasing",
+            "metric": "quarterly_take_up",
+            "entity": "Office market",
+            "geography": "Central London",
+            "geography_basis": "publisher_defined_submarket",
+            "segment": "All offices",
+            "value_num": 2.4,
+            "value_text": null,
+            "unit": "million_sq_ft",
+            "period_kind": "quarter",
+            "period_start": "2026-04-01",
+            "period_end": "2026-06-30",
+            "comparison_start": null,
+            "comparison_end": null,
+            "status": "publisher_estimate",
+            "evidence_class": "broker_market_estimate",
+            "source_id": "S02",
+            "locator": "Leasing summary; first bullet",
+            "paraphrase": "quarterly take up: 2.4 million sq ft.",
+            "caveat": "Rounded quarterly totals; their sum is not an exact reconstruction of a separately published H1 total. Take-up is not occupancy.",
+            "series_key": "savills_take_up_central_london",
+            "source_publisher": "Savills",
+            "source_title": "Central London Office Market Q2 2026",
+            "source_url": "https://www.savills.co.uk/research_articles/229130/393427-0",
+            "source_published_at": "2026-08-06",
+            "source_retrieved_at": "2026-10-27",
+            "source": {
+              "source_id": "S02",
+              "publisher": "Savills",
+              "title": "Central London Office Market Q2 2026",
+              "url": "https://www.savills.co.uk/research_articles/229130/393427-0",
+              "published_at": "2026-08-06",
+              "retrieved_at": "2026-10-27",
+              "format": "HTML",
+              "access_status": "Public page opened and relevant passages inspected",
+              "role": "fixture",
+              "notes": "Publisher-defined market estimates. Average achieved rents are not prime benchmarks. The fixture avoids the inconsistent first-time-over-100 claim and ambiguous Q1 rent wording."
+            }
+          },
+          "difference": "0.2",
+          "difference_unit": "million_sq_ft",
+          "basis_points": null,
+          "relative_change_percent": "9.1",
+          "relative_change_approximate": true,
+          "calculation": "later_minus_earlier",
+          "rounding_caveat": "Calculated from reported values; their rounding and scope limits still apply."
+        },
+        "error": null
+      }
+    },
+    {
+      "id": "midtown_growth_slowdown",
+      "request": {
+        "tool": "compare_facts",
+        "arguments": {
+          "fact_id_a": "F15",
+          "fact_id_b": "F16"
+        }
+      },
+      "expected": {
+        "contract_version": "0.1",
+        "ok": true,
+        "data": {
+          "mode": "time_series",
+          "earlier": {
+            "fact_id": "F15",
+            "topic": "rent",
+            "metric": "prime_headline_rent_annual_growth",
+            "entity": "Office market",
+            "geography": "Midtown",
+            "geography_basis": "publisher_defined_submarket",
+            "segment": "Prime",
+            "value_num": 1.4,
+            "value_text": null,
+            "unit": "percent",
+            "period_kind": "quarter_yoy_growth",
+            "period_start": "2026-01-01",
+            "period_end": "2026-03-31",
+            "comparison_start": "2025-01-01",
+            "comparison_end": "2025-03-31",
+            "status": "publisher_estimate",
+            "evidence_class": "broker_market_estimate",
+            "source_id": "S03",
+            "locator": "Annual trends by submarket; Midtown paragraph",
+            "paraphrase": "prime headline rent annual growth: 1.4 percent.",
+            "caveat": "Annual growth rate reported at each quarter. A lower positive growth rate does not mean a fall in rent levels. Geography is Carter Jonas Midtown.",
+            "series_key": "carter_jonas_midtown_prime_annual_growth",
+            "source_publisher": "Carter Jonas",
+            "source_title": "Central London Net Effective Rents Monitor Q1 2026",
+            "source_url": "https://www.carterjonas.co.uk/insights/central-london-net-effective-rents-monitor-q1-2026",
+            "source_published_at": null,
+            "source_retrieved_at": "2026-10-27",
+            "source": {
+              "source_id": "S03",
+              "publisher": "Carter Jonas",
+              "title": "Central London Net Effective Rents Monitor Q1 2026",
+              "url": "https://www.carterjonas.co.uk/insights/central-london-net-effective-rents-monitor-q1-2026",
+              "published_at": null,
+              "retrieved_at": "2026-10-27",
+              "format": "HTML",
+              "access_status": "Public page opened and relevant passages inspected",
+              "role": "fixture",
+              "notes": "Report quarter verified; publication date not exposed in retrieved text. Narrative accessed; interactive chart data not downloaded. Publisher geography includes King’s Cross within Midtown."
+            }
+          },
+          "later": {
+            "fact_id": "F16",
+            "topic": "rent",
+            "metric": "prime_headline_rent_annual_growth",
+            "entity": "Office market",
+            "geography": "Midtown",
+            "geography_basis": "publisher_defined_submarket",
+            "segment": "Prime",
+            "value_num": 0.7,
+            "value_text": null,
+            "unit": "percent",
+            "period_kind": "quarter_yoy_growth",
+            "period_start": "2026-04-01",
+            "period_end": "2026-06-30",
+            "comparison_start": "2025-04-01",
+            "comparison_end": "2025-06-30",
+            "status": "publisher_estimate",
+            "evidence_class": "broker_market_estimate",
+            "source_id": "S04",
+            "locator": "Annual trends by submarket; Midtown paragraph",
+            "paraphrase": "prime headline rent annual growth: 0.7 percent.",
+            "caveat": "Annual growth rate reported at each quarter. A lower positive growth rate does not mean a fall in rent levels. Geography is Carter Jonas Midtown.",
+            "series_key": "carter_jonas_midtown_prime_annual_growth",
+            "source_publisher": "Carter Jonas",
+            "source_title": "Central London Net Effective Rents Monitor Q2 2026",
+            "source_url": "https://www.carterjonas.co.uk/insights/central-london-net-effective-rents-monitor-q2-2026",
+            "source_published_at": null,
+            "source_retrieved_at": "2026-10-27",
+            "source": {
+              "source_id": "S04",
+              "publisher": "Carter Jonas",
+              "title": "Central London Net Effective Rents Monitor Q2 2026",
+              "url": "https://www.carterjonas.co.uk/insights/central-london-net-effective-rents-monitor-q2-2026",
+              "published_at": null,
+              "retrieved_at": "2026-10-27",
+              "format": "HTML",
+              "access_status": "Public page opened and relevant passages inspected",
+              "role": "fixture",
+              "notes": "Report quarter verified; publication date unknown. Five-/ten-year lease assumptions; fit-out timeframe excluded. City figures revised following removal of South Bank; this pack uses Midtown and Canary Wharf narrative only."
+            }
+          },
+          "difference": "-0.7",
+          "difference_unit": "percentage points",
+          "basis_points": null,
+          "relative_change_percent": null,
+          "relative_change_approximate": false,
+          "calculation": "later_minus_earlier",
+          "rounding_caveat": "Calculated from reported values; their rounding and scope limits still apply."
+        },
+        "error": null
+      }
+    },
+    {
+      "id": "canary_wharf_vacancy_gap",
+      "request": {
+        "tool": "coverage_gap",
+        "arguments": {
+          "request": "Canary Wharf vacancy in Q2 2026"
+        }
+      },
+      "expected": {
+        "contract_version": "0.1",
+        "ok": true,
+        "data": {
+          "request": "Canary Wharf vacancy in Q2 2026",
+          "requested_scope": {
+            "topic": "vacancy",
+            "metric": "vacancy_rate",
+            "geography": "Canary Wharf",
+            "period_start": "2026-04-01",
+            "period_end": "2026-06-30"
+          },
+          "inferred_fields": [
+            "geography",
+            "metric",
+            "period_end",
+            "period_start",
+            "topic"
+          ],
+          "unresolved_fields": [],
+          "assessment": "no_matching_facts_in_fixture",
+          "message": "No matching facts in this curated fixture for the resolved scope. This is a coverage gap, not zero market activity.",
+          "coverage_rows": [
+            {
+              "requirement": "Vacancy and availability",
+              "coverage_status": "partial_but_usable",
+              "sources": [
+                "S01",
+                "S02"
+              ],
+              "notes": "Two-quarter Central London/Core/Fringe vacancy; City and West End Core Q2 snapshots. No standalone availability series or Canary Wharf/Midtown vacancy fixture."
+            }
+          ],
+          "available_fact_ids": [],
+          "available_count": 0,
+          "truncated": false,
+          "scope_limit": "Curated fixture only; exact publisher geography; only supported keywords and a single Qn YYYY are inferred; explicit filters recommended."
+        },
+        "error": null
+      }
+    },
+    {
+      "id": "city_core_evidence",
+      "request": {
+        "tool": "coverage_gap",
+        "arguments": {
+          "request": "City Core vacancy in Q2 2026"
+        }
+      },
+      "expected": {
+        "contract_version": "0.1",
+        "ok": true,
+        "data": {
+          "request": "City Core vacancy in Q2 2026",
+          "requested_scope": {
+            "topic": "vacancy",
+            "metric": "vacancy_rate",
+            "geography": "City Core",
+            "period_start": "2026-04-01",
+            "period_end": "2026-06-30"
+          },
+          "inferred_fields": [
+            "geography",
+            "metric",
+            "period_end",
+            "period_start",
+            "topic"
+          ],
+          "unresolved_fields": [],
+          "assessment": "matching_facts_in_fixture",
+          "message": "Matching facts exist in this curated fixture; this does not establish complete market coverage.",
+          "coverage_rows": [
+            {
+              "requirement": "Vacancy and availability",
+              "coverage_status": "partial_but_usable",
+              "sources": [
+                "S01",
+                "S02"
+              ],
+              "notes": "Two-quarter Central London/Core/Fringe vacancy; City and West End Core Q2 snapshots. No standalone availability series or Canary Wharf/Midtown vacancy fixture."
+            }
+          ],
+          "available_fact_ids": [
+            "F04"
+          ],
+          "available_count": 1,
+          "truncated": false,
+          "scope_limit": "Curated fixture only; exact publisher geography; only supported keywords and a single Qn YYYY are inferred; explicit filters recommended."
+        },
+        "error": null
+      }
+    },
+    {
+      "id": "ambiguous_scope",
+      "request": {
+        "tool": "coverage_gap",
+        "arguments": {
+          "request": "City Core and City Fringe vacancy in Q2 2026"
+        }
+      },
+      "expected": {
+        "contract_version": "0.1",
+        "ok": true,
+        "data": {
+          "request": "City Core and City Fringe vacancy in Q2 2026",
+          "requested_scope": {
+            "topic": "vacancy",
+            "metric": "vacancy_rate",
+            "period_start": "2026-04-01",
+            "period_end": "2026-06-30"
+          },
+          "inferred_fields": [
+            "metric",
+            "period_end",
+            "period_start",
+            "topic"
+          ],
+          "unresolved_fields": [
+            "geography",
+            "request_interpretation"
+          ],
+          "assessment": "needs_scope",
+          "message": "Scope is incomplete, conflicting or ambiguous; no absence claim is established. Provide explicit filters and one clear request.",
+          "coverage_rows": [
+            {
+              "requirement": "Vacancy and availability",
+              "coverage_status": "partial_but_usable",
+              "sources": [
+                "S01",
+                "S02"
+              ],
+              "notes": "Two-quarter Central London/Core/Fringe vacancy; City and West End Core Q2 snapshots. No standalone availability series or Canary Wharf/Midtown vacancy fixture."
+            }
+          ],
+          "available_fact_ids": [
+            "F02",
+            "F04",
+            "F06",
+            "F13",
+            "F14"
+          ],
+          "available_count": 5,
+          "truncated": false,
+          "scope_limit": "Curated fixture only; exact publisher geography; only supported keywords and a single Qn YYYY are inferred; explicit filters recommended."
+        },
+        "error": null
+      }
+    },
+    {
+      "id": "unknown_fact",
+      "request": {
+        "tool": "get_fact",
+        "arguments": {
+          "fact_id": "F999"
+        }
+      },
+      "expected": {
+        "contract_version": "0.1",
+        "ok": false,
+        "data": null,
+        "error": {
+          "code": "NOT_FOUND",
+          "message": "Unknown fact ID: F999."
+        }
+      }
+    },
+    {
+      "id": "reject_limit_boolean",
+      "request": {
+        "tool": "search_facts",
+        "arguments": {
+          "limit": true
+        }
+      },
+      "expected": {
+        "contract_version": "0.1",
+        "ok": false,
+        "data": null,
+        "error": {
+          "code": "INVALID_ARGUMENT",
+          "message": "arguments.limit: expected integer"
+        }
+      }
+    }
+  ]
+}

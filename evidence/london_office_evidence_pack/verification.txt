@@ -1,0 +1,44 @@
+London office evidence pack — verification
+Research date: 2026-10-27
+
+Check group 1
+PASS | SQLite integrity | ok
+PASS | Source foreign keys | 0 violation(s)
+PASS | Schema values, uniqueness and required provenance | 20 sources; 39 facts; 10 coverage records
+PASS | Every fact resolves to a source | 39/39 linked
+PASS | Public example F01 to F02 | Expected 7.4 to 7.2: -0.2 percentage points / -20 basis points
+PASS | Different metrics F01/F07 are refused | Incompatible evidence: series_key, metric, unit, period_kind.
+
+Check group 2
+vacancy_rate | Central London | All offices
+F01 (2026-03-31 to 2026-03-31): 7.4 percent
+F02 (2026-06-30 to 2026-06-30): 7.2 percent
+Change: -0.2 percentage points
+Equivalent: -20 basis points
+Calculated from reported values; their rounding and scope limits still apply.
+Source S01: https://www.savills.co.uk/research_articles/229130/390337-0 | Supply and vacancy; named geography paragraph
+  Caveat: Publisher-defined coverage; not interchangeable with another broker’s availability or vacancy series.
+Source S02: https://www.savills.co.uk/research_articles/229130/393427-0 | Supply and vacancy; named geography paragraph
+  Caveat: Publisher-defined coverage; not interchangeable with another broker’s availability or vacancy series.
+
+Check group 3
+prime_headline_rent_annual_growth | Midtown | Prime
+F15 (2026-01-01 to 2026-03-31): 1.4 percent
+F16 (2026-04-01 to 2026-06-30): 0.7 percent
+Change: -0.7 percentage points
+Calculated from reported values; their rounding and scope limits still apply.
+Source S03: https://www.carterjonas.co.uk/insights/central-london-net-effective-rents-monitor-q1-2026 | Annual trends by submarket; Midtown paragraph
+  Caveat: Annual growth rate reported at each quarter. A lower positive growth rate does not mean a fall in rent levels. Geography is Carter Jonas Midtown.
+Source S04: https://www.carterjonas.co.uk/insights/central-london-net-effective-rents-monitor-q2-2026 | Annual trends by submarket; Midtown paragraph
+  Caveat: Annual growth rate reported at each quarter. A lower positive growth rate does not mean a fall in rent levels. Geography is Carter Jonas Midtown.
+
+Check group 4
+Topic counts: {'demand': 4, 'esg': 3, 'events': 1, 'leasing': 5, 'macro': 4, 'pipeline': 8, 'rent': 6, 'vacancy': 8}
+Scope fixes: [('F21', 'refurbishment_share_of_start_floorspace', 'Qualifying schemes >=10,000 sq ft'), ('F29', 'minimum_pre_let_share_by_erv', 'Building; ERV basis')]
+No optional source facts: 0
+All 6 conversation cases reference existing facts.
+
+Source review: pipeline and macro/ESG research branches independently checked selected records. F21 was clarified as a floorspace share; F29 was corrected to building-level ERV. No material macro/EPC discrepancy reported.
+
+Scope: this verifies the evidence fixture and deterministic queries. No LLM answer accuracy, live refresh, authenticated EPC API or Planning London Datahub integration was tested.
+

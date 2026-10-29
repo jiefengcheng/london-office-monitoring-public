@@ -1,0 +1,53 @@
+{
+  "purpose": "Reference expectations for a later LLM interface; not loaded by query.py and not a measured model benchmark.",
+  "cases": [
+    {
+      "id": "market_change",
+      "prompts": ["What changed in Central London between Q1 and Q2 2026?", "Focus on City Core and City Fringe. Did they move in the same direction?", "Give me two cited points for our meeting."],
+      "fact_ids": ["F01", "F02", "F03", "F04", "F05", "F06", "F07", "F08"],
+      "expected": {"central_vacancy_change_pp": -0.2, "central_vacancy_change_bps": -20, "take_up_change_million_sq_ft": 0.2, "take_up_relative_growth_approx_percent": 9.1, "city_core_change_pp": -0.1, "city_fringe_change_pp": 0.1},
+      "must_preserve": ["Savills source attribution", "Q1 versus Q2 periods", "rounded take-up precision", "publisher-defined geography", "source links on each finding"]
+    },
+    {
+      "id": "rents_and_incentives",
+      "prompts": ["Compare the H1 Grade A rent observations for City and West End.", "What evidence do we have for Midtown and Canary Wharf?", "Did Midtown rents fall?"],
+      "fact_ids": ["F09", "F10", "F15", "F16", "F17", "F18"],
+      "expected": {"west_end_minus_city_GBP_per_sq_ft": 29.96, "midtown_annual_growth_Q1_percent": 1.4, "midtown_annual_growth_Q2_percent": 0.7, "change_in_growth_rate_pp": -0.7, "canary_wharf_5_year_incentive_months": "13–15", "canary_wharf_10_year_incentive_months": "26–30"},
+      "must_preserve": ["Average Grade A rent is not prime headline rent", "Midtown has positive but slower annual growth", "Incentive range is not a signed offer", "No comparable Canary Wharf vacancy observation is present"]
+    },
+    {
+      "id": "pipeline_and_project_history",
+      "prompts": ["What development and refurbishment evidence do we have?", "Trace 2 Aldermanbury Square from pre-let to completion.", "How much newly available space did that completion add?"],
+      "fact_ids": ["F19", "F20", "F21", "F22", "F23", "F24", "F25", "F26", "F39"],
+      "expected": {"construction_starts_2025_million_sq_ft": 4.8, "deliveries_2025_million_sq_ft": 7.1, "refurbishment_share_of_start_floorspace_percent": 66, "initial_completion_target": "December 2025", "later_completion_target": "Q1 2026", "practical_completion_announced": "2026-03-25", "completed_office_area_sq_ft": 321650},
+      "must_preserve": ["Survey year 2025; publication April 2026", "Starts and deliveries are different flows", "66 percent refers to floorspace, not scheme count", "All offices pre-let; do not count completed area as speculative available supply", "Fit-out was to follow; operational occupation not established", "Different historical area figures are not automatically a physical change"]
+    },
+    {
+      "id": "prelet_and_monitoring",
+      "prompts": ["Show one significant office pre-let in our source collection.", "What is the committed area and expected delivery?", "Does 60% pre-let mean 40% of the office area remains free?"],
+      "fact_ids": ["F27", "F28", "F29"],
+      "expected": {"agreement_area_sq_ft": 268000, "expected_delivery": "Q1 2029", "minimum_prelet_share_percent_of_building_ERV": 60},
+      "must_preserve": ["British Land publication 10 February 2026", "Agreement includes area options", "Building ERV and office floor area have different denominators", "Future delivery is a forecast", "1 Appold Street and tenant entrance 8 Exchange Square belong to the same scheme"]
+    },
+    {
+      "id": "macro_context",
+      "prompts": ["What does our newest macro evidence say?", "Separate London observations from UK-wide context.", "How could this inform our office-market watchlist?"],
+      "fact_ids": ["F32", "F33", "F34", "F35"],
+      "expected": {"bank_rate_percent": 3.75, "london_employment_percent": 74.5, "london_unemployment_percent": 6.6, "UK_real_GDP_three_month_growth_percent": 0.7},
+      "must_preserve": ["Policy meeting September 2026", "Labour and GDP reference period June–August 2026", "Publication dates differ from observation periods", "Employment and unemployment denominators differ", "Potential transmission channels are interpretation, not identified causal effects"]
+    },
+    {
+      "id": "quality_and_asset_evidence",
+      "prompts": ["What evidence is relevant to quality, sustainability and hybrid working?", "Show a concrete London office energy certificate.", "What exactly does that certificate establish?"],
+      "fact_ids": ["F11", "F12", "F30", "F31", "F36", "F37", "F39"],
+      "expected": {"H1_2026_Grade_A_take_up_share_percent": 94, "H1_2026_BREEAM_Excellent_Outstanding_take_up_share_percent": 65, "hybrid_working_GB_Jan_Mar_2025_percent": 28, "certificate_rating": "B", "certificate_score": 27, "certificate_area_sq_m": 3111},
+      "must_preserve": ["H1 shares are not Q2-only observations", "Hybrid survey is Great Britain, not London office occupancy", "Certificate is second floor of 20 Triton Street only", "Assessment 22 October 2024; certificate 23 October 2024; validity to 22 October 2034", "EPC, BREEAM and Grade A are distinct", "Portfolio leasing is not a market-wide estimate"]
+    }
+  ],
+  "future_refresh_acceptance": {
+    "same_reviewed_source_loaded_twice": "zero duplicate observations or new findings",
+    "later_GPE_announcement_added": "one project receives a new milestone with a new evidence link; old forecasts remain historical",
+    "presentation_label": "historical replay; newly ingested does not mean newly occurred",
+    "implementation_status": "not implemented by this evidence explorer"
+  }
+}

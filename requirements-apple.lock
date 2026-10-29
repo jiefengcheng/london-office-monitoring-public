@@ -1,0 +1,4 @@
+# Optional live provider: Apple's official Foundation Models SDK on Apple silicon Macs.
+# Use scripts/install.py --profile apple: it pins build dependencies before this native SDK build.
+# Linux/Windows and explicit OpenAI/offline modes need no third-party runtime packages.
+apple-fm-sdk==0.2.1; sys_platform == "darwin" and platform_machine == "arm64" --hash=sha256:e1801d68ae0517f8524c31723b1dc1a662bf9d06b7a9cc765c9dddb77e647980

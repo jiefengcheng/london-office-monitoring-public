@@ -1,0 +1,4 @@
+# Core/API/offline profile: Python standard library only.
+# No third-party runtime dependencies, registry download, Apple SDK or signing identity.
+# Optional Apple installation: python3 scripts/install.py --profile apple
+# Apple dependencies are pinned separately in requirements-apple.lock and requirements-apple-build.lock.

@@ -1,0 +1,34 @@
+{
+  "contract_version": "0.1",
+  "groups": [
+    {
+      "group_id": "savills_h1_2026_grade_a_city_west_end",
+      "common": {
+        "metric": "average_grade_a_rent",
+        "unit": "GBP_per_sq_ft",
+        "entity": "Office market",
+        "period_kind": "half_year",
+        "period_start": "2026-01-01",
+        "period_end": "2026-06-30",
+        "source_publisher": "Savills",
+        "source_id": "S02",
+        "geography_basis": "publisher_defined_submarket",
+        "segment": "Grade A",
+        "evidence_class": "broker_market_estimate",
+        "status": "publisher_estimate",
+        "comparison_start": null,
+        "comparison_end": null
+      },
+      "members": {
+        "F09": {
+          "geography": "City",
+          "series_key": "savills_grade_a_average_city"
+        },
+        "F10": {
+          "geography": "West End",
+          "series_key": "savills_grade_a_average_west_end"
+        }
+      }
+    }
+  ]
+}

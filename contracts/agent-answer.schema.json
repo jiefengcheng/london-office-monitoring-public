@@ -1,0 +1,154 @@
+{
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "enum": [
+        "answer",
+        "clarify",
+        "refuse"
+      ]
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "fact",
+              "comparison",
+              "coverage",
+              "source"
+            ]
+          },
+          "ref": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1
+          }
+        },
+        "required": [
+          "kind",
+          "ref"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 8
+    },
+    "clarification": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "geography",
+        "period",
+        "metric",
+        "entity",
+        "referent",
+        "scope",
+        null
+      ]
+    },
+    "follow_up": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "narrow_geography",
+        "compare_periods",
+        "inspect_source",
+        "project_history",
+        "coverage",
+        null
+      ]
+    },
+    "selection": {
+      "type": "object",
+      "properties": {
+        "topics": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string",
+            "enum": [
+              "rent",
+              "vacancy",
+              "leasing",
+              "pipeline",
+              "macro",
+              "demand",
+              "esg",
+              "events"
+            ]
+          },
+          "maxItems": 8
+        },
+        "geographies": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1
+          },
+          "maxItems": 6
+        },
+        "periods": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "string",
+                "maxLength": 10
+              },
+              "end": {
+                "type": "string",
+                "maxLength": 10
+              }
+            },
+            "required": [
+              "start",
+              "end"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 4
+        },
+        "entity": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "topics",
+        "geographies",
+        "periods",
+        "entity"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "kind",
+    "items",
+    "clarification",
+    "follow_up",
+    "selection"
+  ],
+  "additionalProperties": false
+}
