@@ -78,3 +78,38 @@ class QuestionGuidanceTests(unittest.TestCase):
 
     def test_schema_contains_missing_baseline_code(self):
         self.assertIn('comparison_baseline',str(answer_generation_schema('clarify')))
+
+class AnswerPresentationTests(unittest.TestCase):
+    def setUp(self):
+        from agent_loop import Ledger,render_item
+        self.ledger=Ledger()
+        for index,args in enumerate([
+            dict(fact_id_a='F03',fact_id_b='F04'),dict(fact_id_a='F05',fact_id_b='F06')],1):
+            self.ledger.ingest(dict(observation_id=f'T1.O{index}',tool='compare_facts',arguments=args,
+                                    result=agent_tools.invoke('compare_facts',args)))
+        args=dict(request='City Core leasing',topic='leasing',geography='City Core',period_start='2026-01-01',period_end='2026-06-30')
+        self.ledger.ingest(dict(observation_id='T1.O3',tool='coverage_gap',arguments=args,result=agent_tools.invoke('coverage_gap',args)))
+        self.claims=[render_item(dict(kind='coverage',ref='T1.O3'),self.ledger)]+[
+            render_item(dict(kind='comparison',ref=f'T1.O{i}'),self.ledger) for i in (1,2)]
+
+    def test_direction_summary_precedes_evidence_and_secondary_gaps(self):
+        from agent_loop import render_answer
+        text=render_answer(self.claims,self.ledger)
+        self.assertTrue(text.startswith('Vacancy rate moved in opposite directions: City Core fell by 0.1 percentage points; City Fringe rose by 0.1 percentage points.'))
+        self.assertLess(text.index('[F03/S01]'),text.index('Coverage limits:'))
+        self.assertIn('[F06/S02]',text)
+
+    def test_answered_comparison_does_not_recommend_itself_for_secondary_gap(self):
+        self.assertIsNone(make_recovery('Did they move in the same direction?',{},'answered',self.claims,self.ledger.observations))
+
+    def test_missing_period_still_has_recovery(self):
+        coverage=[self.claims[0]]
+        recovery=make_recovery('leasing',{},'answered',coverage,self.ledger.observations)
+        self.assertEqual(recovery['reason_code'],'missing_evidence')
+
+    def test_unchanged_series_not_described_as_opposite(self):
+        from agent_loop import render_answer
+        for observation in self.ledger.observations.values():
+            if observation['tool']=='compare_facts':observation['result']['data']['difference']='0'
+        text=render_answer(self.claims,self.ledger)
+        self.assertTrue(text.startswith('Vacancy rate was unchanged'))

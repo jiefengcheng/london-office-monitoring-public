@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 import agent_tools
-from agent_loop import Ledger, render_item, CLARIFICATIONS, FOLLOW_UPS, REFUSAL_TEXT
+from agent_loop import Ledger, render_item, render_answer, CLARIFICATIONS, FOLLOW_UPS, REFUSAL_TEXT
 from agent_protocol import strict_json
 from contract_validation import validate
 from question_guidance import make_recovery, with_recovery
@@ -109,7 +109,7 @@ def check_trace(path, require_live=False, expect_provider=None):
                 for claim in claims:
                     expected = render_item({"kind": claim["kind"], "ref": claim["ref"]}, ledgers[session])
                     require(claim == expected, "Claim is not the supported observation projection")
-                rendered = "\n\n".join("- " + claim["text"] for claim in claims)
+                rendered = render_answer(claims, ledgers[session])
                 require(text in {rendered, *(rendered + "\n\n" + question for question in FOLLOW_UPS.values())}, "Unreferenced final text")
                 counts["answered"] += 1
             elif status == "clarified":

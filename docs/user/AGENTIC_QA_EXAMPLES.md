@@ -21,7 +21,7 @@ python agent.py --provider openai --interactive --trace output/guided-qa-01.json
 
 Choose one command and an unused trace filename. The API route needs your own working model/key; the Apple route needs the optional SDK and a ready system model. There is no automatic fallback. The local HTTP simulator and scripted examples are explained in [Reproducing](REPRODUCING.md); they exercise mechanics without model inference.
 
-At the `You:` prompt, enter:
+A blank Enter simply returns to the prompt without creating a conversation turn. At the `You:` prompt, enter:
 
 ```text
 Hello
@@ -52,7 +52,7 @@ Continue in the same conversation:
 Focus on City Core and City Fringe. Did they move in the same direction?
 ```
 
-The question inherits Q1/Q2 2026. City Core vacancy falls from 6.0% to 5.9% (−0.1 pp; F03/F04); City Fringe rises from 7.9% to 8.0% (+0.1 pp; F05/F06). Those are opposite directions. If another requested measure lacks matching submarket evidence, its absence must be identified separately rather than inferred from Central London.
+The question inherits Q1/Q2 2026. City Core vacancy falls from 6.0% to 5.9% (−0.1 pp; F03/F04); City Fringe rises from 7.9% to 8.0% (+0.1 pp; F05/F06). The answer should lead with that opposite-direction conclusion, then show the cited comparison cards. If another requested measure lacks matching submarket evidence, its absence belongs under secondary **Coverage limits**, rather than before the answer. A secondary gap must not recommend asking the vacancy question again.
 
 ```text
 Give me two cited points for our meeting.

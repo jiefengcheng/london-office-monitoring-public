@@ -543,13 +543,15 @@ class TraceAndCLITests(unittest.TestCase):
             path = Path(temporary) / "interactive.jsonl"
             with patch.object(agent, "load_environment", return_value={"MODEL_NAME": "test", "MODEL_API_KEY": KEY}), \
                  patch.object(agent, "OpenAIResponsesProvider", return_value=provider), \
-                 patch("builtins.input", side_effect=["What about there?", "/state", "/new", "/quit"]), \
+                 patch("builtins.input", side_effect=["", "   ", "What about there?", "/state", "/new", "/quit"]), \
                  redirect_stdout(io.StringIO()) as output:
                 provider.model = "test"
                 code = agent.main(["--provider", "openai", "--interactive", "--trace", str(path)])
             events = [json.loads(line) for line in path.read_text().splitlines()]
         self.assertEqual(code, 0)
         self.assertIn("New conversation", output.getvalue())
+        self.assertNotIn("Message must contain", output.getvalue())
+        self.assertEqual(len(provider.contexts), 1)
         self.assertEqual(len([e for e in events if e["event"] == "session_start"]), 2)
         self.assertNotIn(KEY, output.getvalue())
 

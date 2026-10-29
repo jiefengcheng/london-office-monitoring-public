@@ -107,6 +107,7 @@ def main(argv=None):
             except (EOFError, KeyboardInterrupt):
                 print()
                 return code
+            if not message: continue
             if message == "/quit": return code
             if message == "/new":
                 agent.new_session()

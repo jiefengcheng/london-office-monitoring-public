@@ -150,7 +150,7 @@ REASONS = {
 def make_recovery(user_text,state,status,claims,observations,clarification=None,error_code=None):
     gaps=[observations[c["ref"]] for c in claims if c["kind"]=="coverage" and c["ref"] in observations
           and observations[c["ref"]]["result"]["ok"] and observations[c["ref"]]["result"]["data"]["assessment"]=="no_matching_facts_in_fixture"]
-    if status=="answered" and not gaps:return None
+    if status=="answered" and (not gaps or any(c["kind"]=="comparison" for c in claims)):return None
     if status=="clarified" and clarification=="getting_started":return None
     if status=="clarified":code,reason=clarification or "scope",REASONS.get(clarification,REASONS["scope"])
     elif gaps:code,reason="missing_evidence","The fixture lacks observations for part or all of the requested scope. A missing observation cannot establish a market value or a change."

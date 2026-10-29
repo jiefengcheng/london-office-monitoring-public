@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field, asdict
 from datetime import date, datetime, timezone
+from decimal import Decimal
 import copy
 import hashlib
 import json
@@ -223,6 +224,35 @@ def render_item(item, ledger):
             "scopes": [_fact_scope(fact) for fact in facts]}
 
 
+def render_answer(claims, ledger):
+    """Lead with checked direction synthesis; keep supporting cards and gaps."""
+    groups = {}
+    for claim in claims:
+        if claim["kind"] != "comparison": continue
+        data = ledger.observations[claim["ref"]]["result"]["data"]
+        if data["mode"] != "time_series": continue
+        a, b = data["earlier"], data["later"]
+        key = (a["metric"], a["unit"], a["period_start"], a["period_end"], b["period_start"], b["period_end"])
+        groups.setdefault(key, []).append((a["geography"], Decimal(data["difference"]), data["difference_unit"]))
+    summaries = []
+    for key, rows in groups.items():
+        if len(rows) < 2 or len({row[0] for row in rows}) != len(rows): continue
+        signs = {(delta > 0) - (delta < 0) for _, delta, _ in rows}
+        direction = "opposite directions" if signs == {-1, 1} else "the same direction" if len(signs) == 1 and 0 not in signs else "different patterns"
+        details = []
+        for geography, delta, unit in rows:
+            movement = ("rose by " if delta > 0 else "fell by ") + str(abs(delta)) + " " + _unit(unit) if delta else "was unchanged"
+            details.append(geography + " " + movement)
+        predicate = " was unchanged across the compared geographies" if signs == {0} else " moved in " + direction
+        summaries.append(key[0].replace("_", " ").capitalize() + predicate + ": " + "; ".join(details) + ".")
+    evidence = ["- " + c["text"] for c in claims if c["kind"] != "coverage"]
+    gaps = ["- " + c["text"] for c in claims if c["kind"] == "coverage"]
+    blocks = summaries + evidence
+    if gaps:
+        blocks += (["Coverage limits:"] if evidence else []) + gaps
+    return "\n\n".join(blocks)
+
+
 class EvidenceAgent:
     def __init__(self, provider: Provider, trace=None, max_steps=12, on_tool=None):
         if type(max_steps) is not int or not 1 <= max_steps <= 20:
@@ -292,7 +322,8 @@ class EvidenceAgent:
                     if observation and observation["result"]["ok"] and observation["result"]["data"].get("assessment") == "needs_scope":
                         raise ValueError("Unresolved coverage requires clarification, not a factual answer")
             claims = [render_item(item, self.ledger) for item in answer["items"]]
-            text = "\n\n".join("- " + claim["text"] for claim in claims)
+            claims.sort(key=lambda claim: claim["kind"] == "coverage")
+            text = render_answer(claims, self.ledger)
         else:
             if answer["items"]: raise ValueError("Clarification/refusal cannot publish factual items")
             if any(value is not None for value in answer["selection"].values()):
