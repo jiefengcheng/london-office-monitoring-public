@@ -1,12 +1,14 @@
 {
-  "format_version": 1,
+  "format_version": 2,
   "page_count": 5,
   "sha256": {
-    "london-office-monitoring.pdf": "e1b01bcf47513d5b914175a8daa895b966194b156edea22292278c57bb95cd50",
-    "previews/slide-1.png": "b9e61d90f1a30dd87d4c9fd89f8d6af46b4feae5c8fbbe2714921565d2a69754",
-    "previews/slide-2.png": "926fb5fd202d884a45599c610b651dce33ad25f2a34be15b1ce9601f2b178d65",
-    "previews/slide-3.png": "8d459190b613545aaa996d27152dc26107daa944dac075ccc5def297baacad54",
-    "previews/slide-4.png": "52a948f60c36df9f2271c4ffc4f440e1857b6d840e304df817eded87a53b0759",
-    "previews/slide-5.png": "983ceff9514b72c5125f97d8fa8d8e47faf877f2e58868e361684ff0da0232a5"
+    "london-office-monitoring.pdf": "85201b1c5c44824dad7c35fd3f2a924eadad4ea24ac2543eceb0b4903a536d15",
+    "london-office-monitoring.pptx": "9f4f4696c2631b5ab7af4061b5dbfda492e5a090ac42a5437e4d2dda91844712",
+    "CONTENT.md": "a4237afaf2c73e97d6eeaaf750e7c36ac3c08224a93ecc43a5813e8ecaf9159d",
+    "previews/slide-1.png": "a3022d472f5393bc00277b2264888ec17442d1a5e2fff7cbcb347d935c0e453d",
+    "previews/slide-2.png": "d0ce04880d5fd76307512b87d64c6308931675ab6c3fe23191dc665233537509",
+    "previews/slide-3.png": "6b8762f99cff1f898468a8a00b5e2acf8275ebc04cd621ee216efd132d9a4976",
+    "previews/slide-4.png": "defbf30964b46e2ea77fc54b55eeed54994fb74463b133ed763bd97e8c2ed688",
+    "previews/slide-5.png": "ea4fac800c6372e6f21cd3af7117524b7bcc23a8a4b33c447a8ddf2ad4b4b19d"
   }
 }

@@ -45,7 +45,7 @@ python scripts/verify_python_cp6.py
 python scripts/verify_slides.py
 ```
 
-Expected: exit 0 for both. The first runs installation-boundary, agent, tool and historical-replay checks without model generation. The second checks the published PDF and five preview image hashes. These offline checks do not judge live answer quality or the business presentation.
+Expected: exit 0 for both. The first runs installation-boundary, agent, tool and historical-replay checks without model generation. The second checks hashes for the published PDF, editable PPTX, content/notes and five preview images, plus page/slide counts and presenter-note presence. These offline checks do not judge live answer quality or presentation usefulness.
 
 ## Codex-only simulated OpenAI endpoint
 
@@ -137,7 +137,7 @@ Expected: the labelled historical replay first adds 2 observations, 1 finding an
 | Curated input manifest | `inputs/manifest.json` |
 | Curated JSON, read-only SQLite and query explorer | `evidence/london_office_evidence_pack/` |
 | Tests, six-case oracle and reproduction tools | `tests/`, `eval/`, `scripts/` |
-| Five-slide PDF and previews | `slides/` |
+| Five-slide PDF, editable PPTX, content/notes and previews | `slides/` |
 
 Core execution has no third-party runtime dependencies. Optional Apple SDK/build inputs are pinned in separate lock files. Live traces are created locally under `output/`; review them before sharing because they contain prompts and retrieved evidence.
 

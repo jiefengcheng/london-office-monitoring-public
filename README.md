@@ -94,6 +94,6 @@ If the fixture or request scope cannot support an answer, the agent explains why
 
 ## Presentation and source
 
-The [five-slide presentation](slides/README.md) is supplied as a PDF with page previews. The Python source, pinned optional dependencies, curated evidence inputs, tests and evaluation tools are included in this repository. Everything needed to run the Python agent is in the checkout; optional model setup is described above.
+The [five-slide presentation](slides/README.md) explains the agent design, pivotal modules, repository structure, evidence controls and reproduction. It includes an editable PowerPoint, PDF, presenter notes and page previews. The Python source, pinned optional dependencies, curated evidence inputs, tests and evaluation tools are included in this repository. Everything needed to run the Python agent is in the checkout; optional model setup is described above.
 
 See the [delivery plan](docs/PLAN.md) for the project's longer-term direction. The runnable demo is Python-first; Apple Intelligence is optional and requires a supported local Mac.
