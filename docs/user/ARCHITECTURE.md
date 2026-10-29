@@ -1,30 +1,31 @@
 # Architecture
 
-The project separates model decisions from evidence access and answer rendering. Providers may choose a question's scope or request an evidence action, but Python and the curated data store determine what the application can actually return.
+The project separates model decisions from evidence access and answer rendering. Providers may choose a question's scope or request an evidence action, but Python and the curated data store determine what the application can actually return. `query.py` remains the deterministic evidence-package CLI and database build/check utility; the agent-facing interface is the validated tool gateway in `agent_tools.py`.
 
 ```text
-User prompt + small session state
-                 │
-                 ▼
-       Provider decision interface
-      (Apple or OpenAI Responses)
-                 │ tool request
-                 ▼
- Python argument and scope checks
-                 │
-                 ▼
-Five fixed tools ──► read-only SQLite ◄── curated source records
-                 │ observed result
-                 ▼
- Evidence ledger + strict answer schema
-                 │ evidence references only
-                 ▼
-Python renders values, dates, sources,
-calculations, qualifications or a question
-                 │
-                 ▼
-Optional local JSONL trace
+Curated JSON inputs ── query.py build ──► evidence.sqlite
+ sources.json · facts.json · coverage.json     │
+                                               │ read-only at runtime
+                                               ▼
+User → agent.py → agent_loop.py ↔ Apple or OpenAI provider
+                         │       one structured decision at a time
+                         ▼
+                   agent_tools.py
+      search_facts · get_fact · compare_facts
+          get_source · coverage_gap
+                         │
+                         ├──► query.py retrieval/comparison functions
+                         └──► parameterized SQLite access
+                                               │
+                                               ▼
+                                      evidence.sqlite
+                                               │ JSON observation
+                                               ▼
+agent_loop.py evidence ledger → validation → Python answer renderer → User
+                         └── optional local JSONL trace
 ```
+
+This replaces the initial design sketch in which `query.py` itself was the proposed agent entry point and the tool list had four functions. The current runtime has a separate five-tool agent contract; `coverage_gap` is a first-class tool, while `query.py` continues to serve direct deterministic queries, comparisons, validation and rebuilds.
 
 ## The implemented agentic loop
 
@@ -33,6 +34,8 @@ This is a real, running agent loop in `agent_loop.py`, not a future infrastructu
 **interpret → choose one action → validate and execute → observe → continue or finish**
 
 The core guidance directs the model to search first unless the user names a fact/source ID or the relevant evidence is already in the ledger; it forbids outside knowledge, web fetching and invented IDs. Providers share the same Python `Provider` interface. A request cannot go straight from model-written prose to the user as a factual answer.
+
+The model-facing contract and the evidence implementation are deliberately separate. `agent_tools.py` exposes five structured JSON operations: `search_facts`, `get_fact`, `compare_facts`, `get_source` and `coverage_gap`. It validates arguments and IDs, applies scope rules and returns observed records. It reuses `query.py` for fact lookup and compatible comparison, with parameterized read-only SQLite queries for bounded search, source inspection and coverage. The model never receives arbitrary SQL or direct access to the fixture files.
 
 On Apple, the worker first extracts a structured intent/scope plan from the current message and selected state. Later steps choose one allowed action and fill only that action's argument schema. Python grounds place names in the user's words, retains selected periods and checks that every requested geography is covered before accepting an answer. This makes ambiguity and incomplete submarket comparisons visible rather than letting a fluent summary conceal them.
 
@@ -88,6 +91,14 @@ All providers return the same decision shape to the Python host. Model choice do
 | `evidence/london_office_evidence_pack/` | Curated JSON inputs, SQLite database and deterministic query/rebuild utility |
 | `scripts/`, `tests/`, `eval/` | Integrity checks, local simulated Responses endpoint, automated cases, trace/evidence evaluation and human review worksheets |
 | `slides/` | Five-slide PPTX, PDF, source content, presenter notes and previews |
+
+## Evidence lifecycle and extension boundary
+
+The pack currently contains 39 facts, 20 source records and 10 coverage records. Curated `sources.json`, `facts.json` and `coverage.json` are the reviewable inputs; `evidence.sqlite` is the queryable runtime representation. `query.py build` validates and rebuilds that database. The build operation is an explicit maintenance step, separate from answering a user. The agent opens the existing database read-only and does not alter source records.
+
+New evidence follows a deliberate path: identify and review a source, extract a scoped fact with its locator and status, update the curated JSON, run validation, then rebuild the database. Historical project replay is a local evaluation of already reviewed records. There is no live crawler, background polling, authenticated source connector or model-driven ingestion. Optional sources in the register retain access/qualification notes and do not count as integrated feeds.
+
+This makes the initial four-step proposal concrete in the current implementation: `query.py` remains the deterministic data layer; `agent_tools.py` is the thin, structured gateway; `agent.py` and `agent_loop.py` provide the interactive provider-driven loop and conversation state; and evidence maintenance remains outside the runtime. The boundary keeps the Python assessment deliverable self-contained while allowing another host to implement the same logical tool contract later.
 
 No service or database migration is required for the Python application. The supplied database is read-only at runtime and can be rebuilt from the checked JSON arrays using the included `query.py build` command. Rebuild validation refuses invalid provenance or incompatible records.
 

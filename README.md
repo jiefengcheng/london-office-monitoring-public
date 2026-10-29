@@ -6,7 +6,7 @@ The agent already uses a bounded **agentic loop**: it interprets the request, ch
 
 The pack contains **39 facts from 20 source records**, covering market indicators, rents, projects, pre-lets, economic context and asset quality. It is a historical research sample dated 27 October 2026; it does not fetch live market updates.
 
-[Agentic Q&A Examples](docs/user/AGENTIC_QA_EXAMPLES.md) · [Installation](docs/user/INSTALLATION.md) · [Reproduce the examples](docs/user/REPRODUCING.md) · [Architecture](docs/user/ARCHITECTURE.md) · [Evidence and limits](docs/user/EVIDENCE.md) · [Presentation](slides/README.md)
+[Installation](docs/user/INSTALLATION.md) · [Agentic Q&A](docs/user/AGENTIC_QA.md) · [Reproduce the examples](docs/user/REPRODUCING.md) · [Architecture](docs/user/ARCHITECTURE.md) · [Evidence and limits](docs/user/EVIDENCE.md) · [Presentation](slides/README.md)
 
 ## Get started
 
@@ -72,7 +72,7 @@ It runs the existing Python CP6 offline checks unchanged, then sends the real Py
 
 ## Try a conversation
 
-Follow [Agentic Q&A Examples](docs/user/AGENTIC_QA_EXAMPLES.md) for a guided trial with prompts, expected evidence and explanations of continuity, provenance, coverage gaps and recovery.
+Follow [Agentic Q&A](docs/user/AGENTIC_QA.md) for a guided trial with prompts, expected evidence and explanations of continuity, provenance, coverage gaps and recovery.
 
 You can start with `Hello` for a welcome and an example question. Bare greetings are handled locally; evidence questions then use your selected provider.
 

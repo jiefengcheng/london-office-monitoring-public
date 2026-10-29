@@ -1,8 +1,31 @@
-# Agentic Q&A Examples
+# Agentic Q&A
 
 Follow this guided trial to explore the London office evidence agent in about 10–15 minutes. It demonstrates the agentic loop, conversation continuity, checked calculations, source inspection and useful recovery when the fixture cannot answer a question.
 
 The prompts use the supplied historical evidence. Expected results describe evidence and behavior; model decisions and tool order may vary. Each answer should finish with supported evidence or an explicit limitation. A loop of repeated tool calls, an exhausted step budget or a provider error are failed trial steps, not missing market observations.
+
+## Why this evidence pack is structured this way
+
+The trial is built around a small, requirements-led London office evidence collection: **39 fact records, 20 source records and 10 coverage records**. The current market sample is selective rather than exhaustive. Sources S01–S16 underpin the selected observations; S17–S20 record optional or expansion sources with access and qualification notes, and do not imply that those integrations are active. The pack covers rents, vacancy and take-up, development and refurbishment, pre-lets, economic context, hybrid working and building quality.
+
+Each fact is a compact record of what an identified source reports. It retains the metric, value and unit; publisher's geography or named entity; observation or target period; status (such as reported estimate, event, assessment or forecast); source ID and locator; and relevant caveats. This design makes the evidence reusable across questions while keeping distinctions visible. A broker estimate, official statistic, developer milestone, registered assessment and forecast have different evidential meanings. A reference expectation in the evaluation file is a check on retrieval, arithmetic, citations and qualifications; it is not itself evidence and is not supplied to the model during replay.
+
+The SQLite database is ready to query and can be rebuilt from the curated JSON inputs using the evidence pack's `query.py build` command. Runtime agent tools open the database read-only. New evidence is added through review of the source and curated records, validation and an intentional rebuild. The agent does not crawl websites or ingest live market data.
+
+The six multi-turn paths were chosen to exercise distinct, practical questions while making their limits inspectable:
+
+| Conversation path | What the evidence supports | Design point to notice |
+|---|---|---|
+| **Market change** | Vacancy moves 7.4% → 7.2% and take-up 2.2 → 2.4 million sq ft in Central London (F01/F02, F07/F08); City Core and City Fringe vacancy then move in opposite directions (F03–F06). | Preserve Q1/Q2, units and publisher geographies; distinguish percentage-point change from approximate growth calculated from rounded take-up. Carry the selected period into the follow-up and lead with the checked directional conclusion. |
+| **Rents and incentives** | H1 Grade A average rent is £76.21/sq ft in City and £106.17 in West End (F09/F10); Midtown annual prime headline rent growth slows from 1.4% to 0.7% but stays positive (F15/F16); Canary Wharf has lease-length-specific incentive ranges (F17/F18). | An average rent, a growth rate and a rent-free incentive are different measures. The incentive ranges are not signed offers; absence of a Canary Wharf vacancy series remains a fixture gap. |
+| **Pipeline and project history** | Deloitte records 2025 starts, deliveries and refurbishment share (F19–F21); GPE records the evolving 2 Aldermanbury Square timeline (F22–F26, F39). | Keep the 2025 observation year separate from 2026 publication; preserve old forecasts as historical forecasts. Practical completion and 321,650 sq ft do not establish newly available speculative space: offices were pre-let and fit-out was to follow. |
+| **Pre-let and monitoring** | British Land's 1 Appold Street agreement covers 268,000 sq ft with area options and forecast Q1 2029 delivery (F27/F28); the minimum 60% pre-let is measured by building ERV (F29). | ERV share is not floor-area share. The scheme, tenant entrance and forecast status stay explicit; “40% of the office area remains free” is not supported. |
+| **Macro context** | Bank Rate is 3.75%; London employment and unemployment are 74.5% and 6.6%; UK real GDP growth is 0.7% for its stated three-month comparison (F32–F35). | Keep geographies, reference periods, publication dates and denominators separate. Possible transmission to office demand is interpretation, not a measured causal result. |
+| **Quality and asset evidence** | H1 Grade A and BREEAM shares (F11/F12), a Great Britain hybrid-work survey (F36), and an EPC for the second floor of 20 Triton Street (F30/F31) provide different kinds of context; F39 is a landlord-reported BREEAM claim. | Hybrid working is not London office occupancy. The EPC is premises-specific; EPC, BREEAM and Grade A are distinct classifications. Do not generalise a building record or portfolio claim into a market-wide measure. |
+
+The specific prompts make these distinctions observable in conversation. The rents path asks whether Midtown rents “fell” after the growth rate slowed, so the answer has to distinguish a positive but slower rate from a falling level. The pipeline path follows a real project through an old forecast, a later forecast and reported practical completion, then asks whether completed area became newly available. The pre-let path tests the ERV denominator directly. The macro path separates London observations from UK-wide context before inviting interpretation. The quality path moves from market-level demand composition to hybrid-work context and then to a single premises certificate. In each case, follow-up context helps the user refine the question without letting the agent silently change a measure, place or date.
+
+Together these paths cover retrieval, follow-up scope, deterministic comparison, provenance inspection, fixture-gap handling, chronology and denominator discipline. They are a practical evaluation set, not a comprehensive London market panel or a claim that every answer from every model will be correct. For the exact prompt sequence and reproducible evaluation procedure, see [`chat_cases.json`](../../evidence/london_office_evidence_pack/chat_cases.json) and [Reproduce the examples](REPRODUCING.md).
 
 ## 1. Start a real model conversation
 
@@ -144,7 +167,7 @@ python scripts/check_cp4_trace.py output/guided-qa-01.jsonl --require-live --exp
 
 Use `openai` for an API session. This check verifies recorded provider/support boundaries; read the answers yourself for relevance and usefulness. Keep traces local unless reviewed for sharing: they contain your prompts and retrieved evidence.
 
-For the complete six-conversation evaluation and historical event replay, continue to [Reproducing](REPRODUCING.md). See [Architecture](ARCHITECTURE.md) for the implemented agent loop and [Evidence and limits](EVIDENCE.md) for the scope of supported claims.
+For the complete six-conversation evaluation and historical event replay, continue to [Reproduce the examples](REPRODUCING.md). See [Architecture](ARCHITECTURE.md) for the implemented agent loop and [Evidence and limits](EVIDENCE.md) for the scope of supported claims.
 
 ## Explore other evidence topics
 
