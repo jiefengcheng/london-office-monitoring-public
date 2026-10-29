@@ -190,10 +190,13 @@ def comparison_period_status(context, plan):
     for each missing topic/place/quarter, not just a search over their union.
     """
     periods = explicit_periods(context)
+    if not periods and not re.search(r"\b(?:19|20)[0-9]{2}\b|\bQ[1-4]\b", context["user_message"], re.I) and not named_months(context["user_message"]):
+        periods = [{"period_start": p["start"], "period_end": p["end"]}
+                   for p in context.get("state", {}).get("periods", [])]
     topics = request_topics(plan) or (list(CHANGE_TOPICS) if plan["topic"] == "unspecified" else [])
     if plan["task"] != "compare" or len(periods) < 2 or not plan["geographies"] or not topics:
         return None
-    known, refs, missing = context["known_evidence"], [], []
+    known, refs, missing, complete_scopes = context["known_evidence"], [], [], []
     window = explicit_period_window(context)
     for place in plan["geographies"]:
         for topic in topics:
@@ -202,6 +205,7 @@ def comparison_period_status(context, plan):
                       and any(f["period_start"] <= p["period_end"] and f["period_end"] >= p["period_start"] for p in periods)]
             absent = [p for p in periods if not any(f["period_start"] <= p["period_end"] and f["period_end"] >= p["period_start"] for f in scoped)]
             if not absent:
+                complete_scopes.append(scoped)
                 continue
             def covers(scope, period):
                 return (scope.get("geography", "").casefold() == place.casefold()
@@ -209,9 +213,10 @@ def comparison_period_status(context, plan):
                         and scope.get("entity", "") == plan["entity"]
                         and scope.get("period_start", "9999") <= period["period_start"]
                         and scope.get("period_end", "0000") >= period["period_end"])
-            searched = any(not s["truncated"] and not set(s["arguments"]) - {"topic", "geography", "entity", "period_start", "period_end", "limit"}
-                           and covers(s["arguments"], window) for s in known.get("searches", []))
-            if not searched:
+            searches = [s for s in known.get("searches", []) if not s["truncated"]
+                        and not set(s["arguments"]) - {"topic", "geography", "entity", "period_start", "period_end", "limit"}
+                        and covers(s["arguments"], window)]
+            if not searches:
                 args = {"topic": topic, "geography": place, **window, "limit": 100}
                 if plan["entity"]: args["entity"] = plan["entity"]
                 return {"next_call": ("search_facts", args), "references": [], "complete": False}
@@ -224,8 +229,9 @@ def comparison_period_status(context, plan):
                             and not o["data"]["unresolved_fields"] and covers(o["data"]["requested_scope"], period)), None)
                 if gap is None:
                     metrics = {f["metric"] for f in scoped}
+                    gap_period = window if not scoped and any(s["count"] == 0 for s in searches) else period
                     args = {"request": "Fixture coverage for one missing comparison period",
-                            "topic": topic, "geography": place, **period}
+                            "topic": topic, "geography": place, **gap_period}
                     if len(metrics) == 1: args["metric"] = next(iter(metrics))
                     if plan["entity"]: args["entity"] = plan["entity"]
                     return {"next_call": ("coverage_gap", args), "references": [], "complete": False}
@@ -233,11 +239,17 @@ def comparison_period_status(context, plan):
                 refs.append("coverage:" + gap["observation_id"])
     if not missing:
         return None
-    # Include the available facts for all requested topics, without inventing
-    # a comparison for a series whose other period is absent.
-    refs = ["fact:" + f["fact_id"] for f in known["facts"] if f["geography"] in plan["geographies"]
-            and f["topic"] in topics and (not plan["entity"] or plan["entity"].casefold() in f["entity"].casefold())
-            and any(f["period_start"] <= p["period_end"] and f["period_end"] >= p["period_start"] for p in periods)] + refs
+    # When some topics are missing, still calculate the compatible series that
+    # do exist. Do not downgrade an available change into disconnected cards.
+    for scoped in complete_scopes:
+        candidates = comparison_candidates({**context, "known_evidence": {**known, "facts": scoped}})
+        if candidates:
+            mode, a, b = candidates[0].split("|")
+            return {"next_call": ("compare_facts", {"mode": mode, "fact_id_a": a, "fact_id_b": b}),
+                    "references": [], "complete": False}
+        ids = {f["fact_id"] for f in scoped}
+        refs.extend("comparison:" + o["observation_id"] for o in known["observations"]
+                    if o["tool"] == "compare_facts" and set(o["data"]["fact_ids"]) <= ids)
     refs = list(dict.fromkeys(refs))
     return {"next_call": None, "references": refs, "complete": len(refs) <= (plan["count"] or 8)}
 
@@ -364,6 +376,9 @@ def scoped_evidence(context, plan):
     partial = comparison_period_status(context, plan)
     if partial and partial["complete"]:
         ids = {ref.split(":", 1)[1] for ref in partial["references"] if ref.startswith("fact:")}
+        for observation in known["observations"]:
+            if observation["tool"] == "compare_facts" and "comparison:" + observation["observation_id"] in partial["references"]:
+                ids.update(observation["data"]["fact_ids"])
         return ([f for f in known["facts"] if f["fact_id"] in ids], partial["references"], True,
                 len(partial["references"]), set(plan["geographies"]))
     places = set(plan["geographies"])
@@ -429,7 +444,7 @@ def scoped_evidence(context, plan):
         minimum = min(len(refs), 1) if refs else 1
     complete = bool(refs) and (not id_lookup or explicit_ids <= set(fact_map)) and (not places or place_keys <= {p.casefold() for p in covered} or task == "source") and len(set(refs)) >= minimum
     complete = complete and history_search_complete(context, plan)
-    if len(request_topics(plan)) > 1:
+    if len(request_topics(plan)) > 1 and task != "brief":
         complete = complete and set(request_topics(plan)) <= {f["topic"] for f in facts}
     if task == "compare" and topic == "unspecified" and facts:
         series = {(f.get("series_key") or f["metric"], f["geography"]) for f in facts}
@@ -496,9 +511,12 @@ def selection_from_plan(context, plan):
                     "periods": [{"start": start, "end": end} for start, end in periods],
                     "entity": entities[0] if len(entities) == 1 else ""}
     window = explicit_period_window(context)
+    periods = explicit_periods(context)
+    selected_periods = ([{"start": p["period_start"], "end": p["period_end"]} for p in periods]
+                        if periods else copy.deepcopy(context.get("state", {}).get("periods")) if window else None)
     return {"topics": request_topics(plan) if "topics" in plan or plan["topic"] != "unspecified" else None,
             "geographies": plan["geographies"] or None,
-            "periods": [{"start": window["period_start"], "end": window["period_end"]}] if window else None,
+            "periods": selected_periods,
             "entity": plan["entity"] or None}
 
 

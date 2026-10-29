@@ -35,7 +35,7 @@ class MissingComparisonPeriodTests(unittest.TestCase):
     def gather(self, context, plan):
         from apple_worker import comparison_period_status
         ledger, calls = Ledger(), []
-        for index in range(8):
+        for index in range(12):
             context["known_evidence"] = ledger.context()
             status = comparison_period_status(context, plan)
             if status is None or not status["next_call"]:
@@ -80,15 +80,15 @@ class MissingComparisonPeriodTests(unittest.TestCase):
                 context = self.context(f"What changed in Central London between Q3 and Q4 {year}?")
                 status, calls = self.gather(context, self.plan())
                 self.assertTrue(status["complete"])
-                self.assertEqual(len(calls), 6)
-                self.assertEqual(len(status["references"]), 4)
+                self.assertEqual(len(calls), 4)
+                self.assertEqual(len(status["references"]), 2)
                 self.assertTrue(all(ref.startswith("coverage:") for ref in status["references"]))
                 for name, args, result in calls:
                     self.assertTrue(args["period_start"].startswith(str(year)))
                     if name == "coverage_gap":
                         self.assertEqual(result["data"]["assessment"], "no_matching_facts_in_fixture")
                         self.assertEqual(result["data"]["unresolved_fields"], [])
-                validate_reference_selection(context, self.plan(), {"references": status["references"]}, status["references"], 4)
+                validate_reference_selection(context, self.plan(), {"references": status["references"]}, status["references"], 2)
 
     def test_month_request_replaces_prior_dates_and_cannot_reuse_quarterly_figures(self):
         context = self.context("What changed in Central London between May and July 2026?")
@@ -98,6 +98,26 @@ class MissingComparisonPeriodTests(unittest.TestCase):
         plan = {**self.plan(), "task":"brief", "clarification":"none"}
         normalized = normalize_request_plan(plan, context)
         self.assertEqual((normalized["task"], normalized["clarification"]), ("clarify", "period_granularity"))
+
+    def test_geography_followup_preserves_separate_periods_and_compares_available_series(self):
+        initial = self.context("What changed in Central London between Q1 and Q2 2026?")
+        selected = selection_from_plan(initial, self.plan())
+        self.assertEqual(len(selected["periods"]), 2)
+        context = self.context("Focus on City Core and City Fringe. Did they move in the same direction?")
+        context["state"].update(selected)
+        plan = {**self.plan(), "geographies": ["City Core", "City Fringe"]}
+        status, calls = self.gather(context, plan)
+        self.assertTrue(status["complete"])
+        self.assertLessEqual(len(calls), 10)
+        self.assertEqual(sum(ref.startswith("comparison:") for ref in status["references"]), 2)
+        validate_reference_selection(context, plan, {"references": status["references"]}, status["references"], len(status["references"]))
+        context["user_message"] = "Give me two cited points for our meeting."
+        context["state"]["previous_answer_items"] = final_selection("answer", {"references":status["references"], "selection":selected})["items"]
+        brief = {**plan, "task":"brief", "count":2}
+        _,refs,complete,minimum,_ = scoped_evidence(context, brief)
+        self.assertTrue(complete)
+        comparisons = [ref for ref in refs if ref.startswith("comparison:")]
+        validate_reference_selection(context, brief, {"references":comparisons}, refs, minimum)
 
 
 def macro_context():
