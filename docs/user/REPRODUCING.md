@@ -61,6 +61,23 @@ The result proves that the local HTTP transport, Responses payload parsing, prov
 
 To check the service and model you actually intend to use, configure a real local OpenAI key and available model in `.env`, leave `MODEL_API_ENDPOINT` blank, and use the live OpenAI profile below. Keep the Apple Intelligence probe/profile and the existing six-case Python replay as separate gates; the simulator does not replace them.
 
+### Keep the three provider paths separate
+
+| Path | Prerequisite | Interactive-profile command | What it checks |
+|---|---|---|---|
+| Codex-only simulated OpenAI | Core Python install; no real key/model | `python scripts/verify_codex_only.py --output-dir output/codex-local-suite-01` | Existing offline gates plus local HTTP/provider/agent integration; explicitly non-live |
+| Configured OpenAI | `MODEL_NAME` and a valid `MODEL_API_KEY` in `.env`; `MODEL_API_ENDPOINT` blank | `python scripts/run_python_cp6_live.py --provider openai --output-dir output/openai-live-01` | Real Responses API access and the existing three-session provider profile |
+| Apple Intelligence | Install `python scripts/install.py --profile apple`; `python apple_provider.py` reports available/on-device | `python scripts/run_python_cp6_live.py --provider apple --output-dir output/apple-live-01` | On-device model access and the same three-session provider profile |
+
+For the six-case Python replay, keep the same evaluator and manual worksheet flow for either live provider; select `openai` or `apple` explicitly and use a fresh output basename:
+
+```sh
+python scripts/replay_cases.py --host python --provider openai --output output/openai-six-cases-01.jsonl
+python scripts/verify_replay.py output/openai-six-cases-01.jsonl --report output/openai-six-cases-01-pending.json
+```
+
+For Apple, replace `openai` and the two basename stems with `apple`. Complete the same `check_cp5_review.py` worksheet steps documented below. The Codex-only simulator neither changes nor substitutes any live-provider, six-case, manual-review or historical-replay checkpoint.
+
 ## Reproduce an interactive provider profile
 
 After installing a live provider, create a new local run directory with the supplied driver:
