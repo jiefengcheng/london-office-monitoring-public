@@ -71,7 +71,7 @@ def install(profile="core"):
         print("Next: .venv/bin/python apple_provider.py (real availability check; no model generation)")
     else:
         print("Core has no third-party runtime dependencies. Existing packages are preserved; no automatic fallback.")
-        print("Next: configure API model/key locally and run agent.py --provider openai, or use explicit scripted offline mode.")
+        print("The core install does not contact or validate the model endpoint. Use the provider configured before installation, or choose explicit scripted offline mode.")
 
 
 if __name__ == "__main__":

@@ -10,16 +10,24 @@ The pack contains **39 facts from 20 source records**, covering market indicator
 
 ## Get started
 
-Before installing, use Python **3.10+** with `venv`/`pip` support (Python 3.12 is recommended). On macOS, Xcode may put its Python 3.9 on `PATH`; that version is unsupported. Check `python3 --version` first. If it reports less than 3.10, install/select Python 3.12. If another virtual environment is active, deactivate it, then use `python3.12` for the install command below. The repository is public; no GitHub account is needed to clone it.
+The repository is public; no GitHub account is needed to clone it.
 
 ```sh
 git clone --branch codex/publication-candidate https://github.com/jiefengcheng/london-office-monitoring-public.git
 cd london-office-monitoring-public
+cp .env.example .env
+```
+
+**Set up the model endpoint before running the installer or agent.** The default is the OpenAI Responses API at `https://api.openai.com/v1/responses`. Edit `.env` and set `MODEL_NAME` to a tool-calling/structured-output model available to your account and `MODEL_API_KEY` to your local API key. Keep the key in `.env`; the file is gitignored. The OpenAI route has offline tests but has not completed end-to-end live verification. If you plan to use Apple Intelligence, set `MODEL_PROVIDER=apple` instead; that provider is on-device and needs no API key. See [provider setup](docs/user/INSTALLATION.md#provider-setup) for details.
+
+Before installing, use Python **3.10+** with `venv`/`pip` support (Python 3.12 is recommended). On macOS, Xcode may put its Python 3.9 on `PATH`; that version is unsupported. Check `python3 --version` first. If it reports less than 3.10, install/select Python 3.12. If another virtual environment is active, deactivate it, then use `python3.12` for the install command below. Core install has no third-party runtime dependencies:
+
+```sh
 python3 scripts/install.py --profile core
 . .venv/bin/activate
 ```
 
-On Windows cmd.exe, activate with `.venv\Scripts\activate`. Core installation uses only Python's standard library. For a credential-free evidence example:
+On Windows cmd.exe, activate with `.venv\Scripts\activate`. For a credential-free evidence example:
 
 ```sh
 python evidence/london_office_evidence_pack/query.py demo
@@ -40,9 +48,9 @@ python apple_provider.py
 python agent.py --provider apple --interactive
 ```
 
-This provider runs on-device and needs no API key. See [Apple setup](docs/user/INSTALLATION.md#apple-intelligence) for requirements and troubleshooting.
+This provider runs on-device and needs no API key. See [Apple setup](docs/user/INSTALLATION.md#apple-intelligence) for requirements and troubleshooting. The optional SDK profile is installed after selecting the Apple provider:
 
-**OpenAI API:** the default provider uses the Responses API. Copy `.env.example` to a local `.env` without replacing existing settings, then set `MODEL_NAME` to a model available to your account and set `MODEL_API_KEY` (or `OPENAI_API_KEY`). Run:
+**OpenAI API:** the default provider uses the Responses API. After the setup step above, set `MODEL_NAME` to a model available to your account and set `MODEL_API_KEY` (or `OPENAI_API_KEY`) in `.env`. Run:
 
 ```sh
 python agent.py --provider openai --interactive

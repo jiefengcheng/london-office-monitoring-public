@@ -2,9 +2,15 @@
 
 Run commands from the repository root. Use the [candidate clone command](../../README.md#get-started), then record `git rev-parse HEAD` if you intend to compare results with another machine.
 
+## Provider setup
+
+Choose and configure the model provider before running installation or agent commands. For the default OpenAI route, copy `.env.example` to `.env` and set `MODEL_NAME` to a Responses API model available to your account and `MODEL_API_KEY` to your local key. The endpoint is the OpenAI Responses API (`https://api.openai.com/v1/responses`); credentials stay in the ignored `.env` file. Do not commit the key. This adapter has offline tests but has not completed end-to-end live verification.
+
+For Apple Intelligence, set `MODEL_PROVIDER=apple` in `.env`; it is an on-device provider with no API endpoint or key. Install its optional SDK with the Apple profile below before running the agent. For scripted offline examples, no model setup or credentials are needed; use the explicit `scripted` provider documented in [Reproducing](REPRODUCING.md#offline-examples).
+
 ## Python core
 
-Install Python 3.10 or later with venv/pip support; Python 3.12 is recommended. Check the interpreter you actually run:
+Install Python 3.10 or later with venv/pip support; Python 3.12 is recommended. On macOS, Xcode may put Python 3.9 first on `PATH`; it is unsupported. If `python3 --version` is below 3.10, install/select Python 3.12 and run `python3.12 scripts/install.py --profile core`. Check the interpreter you actually run:
 
 ```sh
 python3 --version
@@ -43,7 +49,7 @@ The reviewed environment includes macOS 27.0.1 arm64, Python 3.12.16, Xcode/SDK 
 
 ## OpenAI API
 
-The core provider is `openai`. Copy `.env.example` to `.env` if it does not exist, then edit it locally:
+The core provider is `openai`. After completing [Provider setup](#provider-setup), edit `.env` locally:
 
 ```dotenv
 MODEL_PROVIDER=openai
