@@ -207,6 +207,8 @@ def render_item(item, ledger):
             labels = [str(scope[key]).replace("_", " ") for key in
                       ("geography", "metric", "entity", "period_start", "period_end") if key in scope]
             text = "Fixture coverage — " + "; ".join(labels) + ": " + data["message"]
+            if data["assessment"] == "no_matching_facts_in_fixture":
+                text += " This missing observation cannot support a period-to-period change."
             if data["unresolved_fields"]: text += " Clarify: " + ", ".join(key.replace("_", " ") for key in data["unresolved_fields"]) + "."
             text += " " + " ".join(row["notes"] for row in data["coverage_rows"])
     for fact in facts:

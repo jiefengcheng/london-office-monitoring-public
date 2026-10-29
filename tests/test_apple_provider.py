@@ -23,6 +23,58 @@ from scripts.check_cp4_trace import check_trace
 import agent_tools
 
 
+class MissingComparisonPeriodTests(unittest.TestCase):
+    def context(self, prompt):
+        return {"user_message": prompt, "state": {"periods": [], "previous_answer_items": []},
+                "known_evidence": Ledger().context()}
+
+    def plan(self):
+        return {"task": "compare", "geographies": ["Central London"], "topic": "unspecified",
+                "topics": ["vacancy", "leasing"], "entity": "", "count": 0}
+
+    def gather(self, context, plan):
+        from apple_worker import comparison_period_status
+        ledger, calls = Ledger(), []
+        for index in range(8):
+            context["known_evidence"] = ledger.context()
+            status = comparison_period_status(context, plan)
+            if status is None or not status["next_call"]:
+                return status, calls
+            name, arguments = status["next_call"]
+            result = agent_tools.invoke(name, arguments)
+            self.assertTrue(result["ok"], result)
+            calls.append((name, arguments, result))
+            ledger.ingest({"observation_id": f"T1.O{index+1}", "tool": name,
+                           "arguments": arguments, "result": result})
+        self.fail("Comparison coverage did not converge")
+
+    def test_q2_q3_returns_observed_q2_and_two_confirmed_q3_gaps(self):
+        context, plan = self.context("What changed in Central London between Q2 and Q3 2026?"), self.plan()
+        status, calls = self.gather(context, plan)
+        self.assertTrue(status["complete"])
+        self.assertEqual([name for name, _, _ in calls], ["search_facts", "coverage_gap", "search_facts", "coverage_gap"])
+        self.assertEqual({r for r in status["references"] if r.startswith("fact:")}, {"fact:F02", "fact:F08"})
+        for name, args, result in calls:
+            if name == "coverage_gap":
+                self.assertEqual((args["period_start"], args["period_end"]), ("2026-07-01", "2026-09-30"))
+                self.assertEqual(result["data"]["assessment"], "no_matching_facts_in_fixture")
+        _, refs, complete, minimum, _ = scoped_evidence(context, plan)
+        self.assertTrue(complete)
+        self.assertEqual(minimum, 4)
+        validate_reference_selection(context, plan, {"references": refs}, refs, minimum)
+        with self.assertRaises(ProviderError):
+            validate_reference_selection(context, plan, {"references": [r for r in refs if r.startswith("fact:")]}, refs, minimum)
+
+    def test_nonadjacent_quarters_do_not_publish_intermediate_quarter_facts(self):
+        status, _ = self.gather(self.context("Compare Central London between Q1 and Q3 2026"), self.plan())
+        self.assertEqual({r for r in status["references"] if r.startswith("fact:")}, {"fact:F01", "fact:F07"})
+
+    def test_available_q1_q2_returns_to_normal_comparison_path(self):
+        status, calls = self.gather(self.context("What changed in Central London between Q1 and Q2 2026?"), self.plan())
+        self.assertIsNone(status)
+        self.assertEqual([name for name, _, _ in calls], ["search_facts", "search_facts"])
+
+
 def macro_context():
     ledger = Ledger()
     for fact_id in ("F32", "F33", "F34", "F35"):

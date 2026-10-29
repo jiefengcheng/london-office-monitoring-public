@@ -82,6 +82,8 @@ For Apple, replace `openai` and the two basename stems with `apple`. Complete th
 
 For an opening-interaction smoke check, start `python agent.py --provider apple --interactive` (or select `openai`), enter `Hello`, then `Show fact F01 and its original source.`, and finally `/quit`. Expected: a local welcome first, followed by a provider-driven F01/S01 answer with 7.4% and provenance. The greeting must preserve state, create no tool/model-generation event, and leave the next evidence request usable. A greeting alone is not a live-provider check. The full three-session profile below remains the broader verification.
 
+Also try `What changed in Central London between Q2 and Q3 2026?` with Apple. Expected: available Q2 vacancy (F02, 7.2%) and take-up (F08, 2.4 million sq ft), plus separate Q3 fixture gaps for those metrics. No Q2-to-Q3 change is supported. The turn should finish without repeated fact lookups or step-budget exhaustion. This variation supplements the original six-case replay.
+
 After installing a live provider, create a new local run directory with the supplied driver:
 
 ```sh

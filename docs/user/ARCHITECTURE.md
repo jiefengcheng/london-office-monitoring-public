@@ -58,6 +58,8 @@ The shared v0.1 schema and 17 golden examples are in `contracts/`. Time-series c
 
 A “no matching facts” result applies only to this supplied fixture. It never establishes that there is no market activity. If the request does not specify enough scope, the agent asks for clarification rather than broadening a publisher's geography or substituting a related metric.
 
+For explicit quarter comparisons, the Apple adapter checks whether the retrieved evidence covers each requested period. When one period is missing, it requests a separate coverage check bound to the observed metric, geography and missing dates. A checked missing-period result can complete a partial answer together with the available fact cards. A matching result over the combined date range is insufficient to prove coverage of both quarters. The adapter also excludes already-loaded IDs from individual fact/source lookup choices.
+
 ## Provider boundary
 
 The CLI, tool gateway, session state, schemas, evidence ledger, answer validator and renderer are provider-neutral. Provider selection is explicit and there is no automatic fallback.

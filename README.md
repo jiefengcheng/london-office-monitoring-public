@@ -82,6 +82,8 @@ Give me two cited points for our meeting.
 
 Answers include fact/source references, observation periods, units and qualifications. Use `/state` to inspect conversation context, `/new` to start again and `/quit` to exit. Conversation state lasts for the current process.
 
+When a requested comparison period is missing from the fixture, the agent can return the available observations alongside a scoped coverage gap. For example, Q2 versus Q3 2026 in Central London provides Q2 records and identifies the missing Q3 evidence; it cannot calculate that change from the supplied fixture.
+
 The [reproduction guide](docs/user/REPRODUCING.md) covers offline checks, a live interactive profile, the six-conversation evaluation and historical project replay. Model choices and wording can vary; inspect the returned evidence and calculations.
 
 ## Presentation and source

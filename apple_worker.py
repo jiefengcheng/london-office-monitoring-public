@@ -164,6 +164,73 @@ def explicit_period_window(context):
     return {}
 
 
+def comparison_period_status(context, plan):
+    """Resolve missing comparison quarters from checked searches and gap tools.
+
+    No fixture/oracle is read here. A partial result requires an observed gap
+    for each missing topic/place/quarter, not just a search over their union.
+    """
+    quarters = sorted(set(int(q) for q in re.findall(r"\bQ([1-4])\b", context["user_message"], re.I)))
+    years = set(re.findall(r"\b(?:19|20)[0-9]{2}\b", context["user_message"]))
+    topics = request_topics(plan) or (list(CHANGE_TOPICS) if plan["topic"] == "unspecified" else [])
+    if plan["task"] != "compare" or len(quarters) < 2 or len(years) != 1 or not plan["geographies"] or not topics:
+        return None
+    year = int(next(iter(years)))
+    periods = [{"period_start": f"{year:04d}-{(q-1)*3+1:02d}-01",
+                "period_end": f"{year:04d}-{q*3:02d}-{calendar.monthrange(year,q*3)[1]:02d}"} for q in quarters]
+    known, refs, missing = context["known_evidence"], [], []
+    window = explicit_period_window(context)
+    for place in plan["geographies"]:
+        for topic in topics:
+            scoped = [f for f in known["facts"] if f["geography"].casefold() == place.casefold()
+                      and f["topic"] == topic and (not plan["entity"] or plan["entity"].casefold() in f["entity"].casefold())
+                      and any(f["period_start"] <= p["period_end"] and f["period_end"] >= p["period_start"] for p in periods)]
+            absent = [p for p in periods if not any(f["period_start"] <= p["period_end"] and f["period_end"] >= p["period_start"] for f in scoped)]
+            if not absent:
+                continue
+            def covers(scope, period):
+                return (scope.get("geography", "").casefold() == place.casefold()
+                        and scope.get("topic", topic) == topic
+                        and scope.get("entity", "") == plan["entity"]
+                        and scope.get("period_start", "9999") <= period["period_start"]
+                        and scope.get("period_end", "0000") >= period["period_end"])
+            searched = any(not s["truncated"] and not set(s["arguments"]) - {"topic", "geography", "entity", "period_start", "period_end", "limit"}
+                           and covers(s["arguments"], window) for s in known.get("searches", []))
+            if not searched:
+                args = {"topic": topic, "geography": place, **window, "limit": 100}
+                if plan["entity"]: args["entity"] = plan["entity"]
+                return {"next_call": ("search_facts", args), "references": [], "complete": False}
+            if not scoped:
+                # No observed metric to bind: retain the normal coverage/
+                # clarification path instead of inventing a metric identifier.
+                return None
+            refs.extend("fact:" + f["fact_id"] for f in scoped)
+            for period in absent:
+                gap = next((o for o in known["observations"] if o["tool"] == "coverage_gap"
+                            and o["data"]["assessment"] == "no_matching_facts_in_fixture"
+                            and o["data"]["requested_scope"].get("metric") in {f["metric"] for f in scoped}
+                            and not o["data"]["unresolved_fields"] and covers(o["data"]["requested_scope"], period)), None)
+                if gap is None:
+                    metrics = {f["metric"] for f in scoped}
+                    if len(metrics) != 1:
+                        return None
+                    args = {"request": "Fixture coverage for one missing comparison period",
+                            "topic": topic, "metric": next(iter(metrics)), "geography": place, **period}
+                    if plan["entity"]: args["entity"] = plan["entity"]
+                    return {"next_call": ("coverage_gap", args), "references": [], "complete": False}
+                missing.append(gap)
+                refs.append("coverage:" + gap["observation_id"])
+    if not missing:
+        return None
+    # Include the available facts for all requested topics, without inventing
+    # a comparison for a series whose other period is absent.
+    refs = ["fact:" + f["fact_id"] for f in known["facts"] if f["geography"] in plan["geographies"]
+            and f["topic"] in topics and (not plan["entity"] or plan["entity"].casefold() in f["entity"].casefold())
+            and any(f["period_start"] <= p["period_end"] and f["period_end"] >= p["period_start"] for p in periods)] + refs
+    refs = list(dict.fromkeys(refs))
+    return {"next_call": None, "references": refs, "complete": len(refs) <= (plan["count"] or 8)}
+
+
 def comparison_candidates(context):
     facts = context["known_evidence"]["facts"]
     keys = ("series_key", "metric", "unit", "entity", "geography", "segment", "period_kind", "geography_basis")
@@ -283,6 +350,11 @@ def unique_reference_selection(references, minimum):
 
 def scoped_evidence(context, plan):
     known = context["known_evidence"]
+    partial = comparison_period_status(context, plan)
+    if partial and partial["complete"]:
+        ids = {ref.split(":", 1)[1] for ref in partial["references"] if ref.startswith("fact:")}
+        return ([f for f in known["facts"] if f["fact_id"] in ids], partial["references"], True,
+                len(partial["references"]), set(plan["geographies"]))
     places = set(plan["geographies"])
     place_keys = {p.casefold() for p in places}
     topic, entity = plan["topic"], plan["entity"]
@@ -356,6 +428,8 @@ def scoped_evidence(context, plan):
                 fact = fact_map[identifier]
                 compared.add((fact.get("series_key") or fact["metric"], fact["geography"]))
         complete = complete and series <= compared
+    if partial and partial["next_call"]:
+        complete = False
     return facts, refs, complete, minimum, covered
 
 
@@ -541,6 +615,8 @@ async def generate(fm, model, request, identity):
         return {"ok": True, "decision": {"type": "finish", "value": value}, "metadata": identity}
     context["request_plan"] = plan
     facts, references, complete, minimum, covered = scoped_evidence(context, plan)
+    period_status = comparison_period_status(context, plan)
+    forced_call = period_status["next_call"] if period_status else None
     scoped_context = {**context, "known_evidence": {**context["known_evidence"], "facts": facts}}
     comparisons = comparison_candidates(scoped_context)
     window = explicit_period_window(context)
@@ -566,6 +642,8 @@ async def generate(fm, model, request, identity):
         tools = ["coverage_gap"]
     elif plan["geographies"] and not uncovered and not missing_topics and "search_facts" in tools:
         tools = [name for name in tools if name != "search_facts"]
+    if forced_call:
+        tools, final_actions = [forced_call[0]], []
     compact = compact_decision_context(context, facts, window, comparisons)
     prompt = json.dumps(compact, ensure_ascii=False, separators=(",", ":"))
     action_schema = {"type": "object", "title": "NextAction", "properties": {
@@ -612,9 +690,15 @@ async def generate(fm, model, request, identity):
                                   ("source_id", r"\bS[0-9]{2,}\b", context["known_evidence"]["source_ids"])):
             if key in schema["properties"]:
                 allowed = sorted(set(ids) | set(re.findall(pattern, context["user_message"])))
+                if name == "get_fact" and key == "fact_id":
+                    allowed = sorted(set(allowed) - loaded_facts)
+                elif name == "get_source" and key == "source_id":
+                    allowed = sorted(set(allowed) - loaded_sources)
                 if allowed: schema["properties"][key]["enum"] = allowed
     unique_selection = unique_reference_selection(references, minimum) if name in final_actions else None
-    if unique_selection is not None:
+    if forced_call:
+        value = copy.deepcopy(forced_call[1])
+    elif unique_selection is not None:
         value = unique_selection
     else:
         value = await respond("Selected action: " + name + ". Fill only this action's fields. "
@@ -644,7 +728,7 @@ async def generate(fm, model, request, identity):
             value = {"mode": mode, "fact_id_a": a, "fact_id_b": b}
         for key in ("period_start", "period_end"):
             if key in value: value[key] = calendar_text(value[key])
-        if name == "search_facts":
+        if name == "search_facts" and not forced_call:
             if uncovered and value.get("geography") not in uncovered:
                 value["geography"] = uncovered[0]
             if search_signature(value) in repeated and uncovered:
