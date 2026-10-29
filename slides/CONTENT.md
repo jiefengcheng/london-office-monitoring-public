@@ -135,7 +135,7 @@ answered prompts
 6 conversations
 20 tool calls, 0 errors
 
-Chosen Apple profile only.
+Proved with Apple profile.
 Automated evidence checks
 plus completed human review.
 
