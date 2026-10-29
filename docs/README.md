@@ -4,6 +4,7 @@ Start with the [project overview](../README.md).
 
 ## User guides
 
+- [Agentic Q&A Examples: a guided trial](user/AGENTIC_QA_EXAMPLES.md)
 - [Installation and provider setup](user/INSTALLATION.md)
 - [Reproduce examples and evaluation](user/REPRODUCING.md)
 - [Evidence, behavior and limits](user/EVIDENCE.md)

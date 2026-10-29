@@ -1,5 +1,7 @@
 # Reproduce the demo
 
+For a first interactive trial, follow [Agentic Q&A Examples](AGENTIC_QA_EXAMPLES.md), which explains each prompt and the evidence to look for. This guide covers the deeper verification commands.
+
 The public repository includes the runnable source, curated evidence pack, tests, evaluation code and five-slide PDF. Use the [installation guide](INSTALLATION.md) from a fresh clone, record `git rev-parse HEAD` and run commands from the repository root. Core operation needs no other workspace, signing identity or third-party runtime package.
 
 Choose unused names under `output/` for each new run. Reusing a disposable historical-replay database changes its initial state; it is not a fresh reproduction.

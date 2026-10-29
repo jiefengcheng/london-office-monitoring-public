@@ -6,7 +6,7 @@ The agent already uses a bounded **agentic loop**: it interprets the request, ch
 
 The pack contains **39 facts from 20 source records**, covering market indicators, rents, projects, pre-lets, economic context and asset quality. It is a historical research sample dated 27 October 2026; it does not fetch live market updates.
 
-[Installation](docs/user/INSTALLATION.md) · [Reproduce the examples](docs/user/REPRODUCING.md) · [Architecture](docs/user/ARCHITECTURE.md) · [Evidence and limits](docs/user/EVIDENCE.md) · [Presentation](slides/README.md)
+[Agentic Q&A Examples](docs/user/AGENTIC_QA_EXAMPLES.md) · [Installation](docs/user/INSTALLATION.md) · [Reproduce the examples](docs/user/REPRODUCING.md) · [Architecture](docs/user/ARCHITECTURE.md) · [Evidence and limits](docs/user/EVIDENCE.md) · [Presentation](slides/README.md)
 
 ## Get started
 
@@ -72,6 +72,8 @@ It runs the existing Python CP6 offline checks unchanged, then sends the real Py
 
 ## Try a conversation
 
+Follow [Agentic Q&A Examples](docs/user/AGENTIC_QA_EXAMPLES.md) for a guided trial with prompts, expected evidence and explanations of continuity, provenance, coverage gaps and recovery.
+
 You can start with `Hello` for a welcome and an example question. Bare greetings are handled locally; evidence questions then use your selected provider.
 
 ```text
@@ -88,10 +90,10 @@ If both requested quarters are missing, the answer identifies the checked gaps f
 
 The [reproduction guide](docs/user/REPRODUCING.md) covers offline checks, a live interactive profile, the six-conversation evaluation and historical project replay. Model choices and wording can vary; inspect the returned evidence and calculations.
 
+If the fixture or request scope cannot support an answer, the agent explains why and suggests one nearby question validated against the evidence gateway. Asking that question explicitly selects its stated geography and dates; the agent does not silently substitute them. See the [conversation recovery check](docs/user/REPRODUCING.md#conversation-recovery-check).
+
 ## Presentation and source
 
 The [five-slide presentation](slides/README.md) is supplied as a PDF with page previews. The Python source, pinned optional dependencies, curated evidence inputs, tests and evaluation tools are included in this repository. Everything needed to run the Python agent is in the checkout; optional model setup is described above.
 
 See the [delivery plan](docs/PLAN.md) for the project's longer-term direction. The runnable demo is Python-first; Apple Intelligence is optional and requires a supported local Mac.
-
-If the fixture or request scope cannot support an answer, the agent explains why and suggests one nearby question validated against the evidence gateway. Asking that question explicitly selects its stated geography and dates; the agent does not silently substitute them. See the [conversation recovery check](docs/user/REPRODUCING.md#conversation-recovery-check).
