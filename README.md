@@ -10,7 +10,7 @@ The pack contains **39 facts from 20 source records**, covering market indicator
 
 ## Get started
 
-Use Git and Python **3.10+** (3.12 recommended). The repository is public; no GitHub account is needed to clone it.
+Before installing, use Python **3.10+** with `venv`/`pip` support (Python 3.12 is recommended). On macOS, Xcode may put its Python 3.9 on `PATH`; that version is unsupported. Check `python3 --version` first. If it reports less than 3.10, install/select Python 3.12. If another virtual environment is active, deactivate it, then use `python3.12` for the install command below. The repository is public; no GitHub account is needed to clone it.
 
 ```sh
 git clone --branch codex/publication-candidate https://github.com/jiefengcheng/london-office-monitoring-public.git
